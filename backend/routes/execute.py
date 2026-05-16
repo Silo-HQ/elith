@@ -115,7 +115,7 @@ async def run_operation(session_id: str, request: ExecuteRequest):
         # 5. Route to provider and stream output
         await manager.add_output(session_id, f"Executing with {request.model}...\n\n")
         
-        for chunk in model_router.route(request.model, prompt, context_data['context']):
+        for chunk in model_router.route(request.model, request.repo_path, prompt, context_data['context']):
             await manager.add_output(session_id, chunk)
         
         # 6. Mark complete and log

@@ -1,7 +1,10 @@
 """Elith FastAPI backend."""
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from .routes import scan, execute, stream, models, results, tasks
+from .utils.logger import logger
+import time
 
 app = FastAPI(
     title="Elith API",
@@ -38,9 +41,41 @@ async def root():
     }
 
 
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    """Log all requests and add timing."""
+    start_time = time.time()
+    
+    logger.info(f"Request: {request.method} {request.url.path}")
+    
+    try:
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logger.info(f"Response: {response.status_code} ({process_time:.3f}s)")
+        return response
+    except Exception as e:
+        logger.error(f"Request failed: {str(e)}")
+        raise
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Handle uncaught exceptions."""
+    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "detail": str(exc),
+            "path": request.url.path
+        }
+    )
+
+
 @app.get("/health")
 async def health():
     """Health check endpoint."""
-    return {"status": "healthy"}
+    logger.debug("Health check requested")
+    return {"status": "healthy", "service": "elith-backend"}
 
 # Made with Bob

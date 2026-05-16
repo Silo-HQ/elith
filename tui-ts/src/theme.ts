@@ -1,58 +1,69 @@
-// Theme configuration matching Elith design system
-// Pure black background with purple accents
+// Theme configuration matching Gemini CLI / Claude Code CLI aesthetic
+// GitHub dark theme colors with purple brand accent
 
 import chalk from 'chalk';
 
-export const colors = {
-  // Base colors
-  background: '#0A0A0A',
-  backgroundAlt: '#121212',
-  
-  // Primary purple accent
-  primary: '#A855F7',
-  primaryDim: '#9333EA',
-  
-  // Text colors
-  text: '#FFFFFF',
-  textDim: '#888888',
-  textMuted: '#666666',
-  
-  // Status colors
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
-  
-  // Model-specific colors
-  bob: '#00BFFF',
-  claude: '#FF6B35',
-  gemini: '#4285F4',
-  gpt: '#10A37F',
-  local: '#A855F7',
-  
-  // UI elements
-  border: '#333333',
-  borderActive: '#A855F7',
-  input: '#1A1A1A',
-};
-
-// Chalk theme helpers
 export const theme = {
-  primary: chalk.hex(colors.primary),
-  text: chalk.hex(colors.text),
-  textDim: chalk.hex(colors.textDim),
-  textMuted: chalk.hex(colors.textMuted),
-  success: chalk.hex(colors.success),
-  error: chalk.hex(colors.error),
-  warning: chalk.hex(colors.warning),
-  info: chalk.hex(colors.info),
-  
-  // Model colors
-  bob: chalk.hex(colors.bob),
-  claude: chalk.hex(colors.claude),
-  gemini: chalk.hex(colors.gemini),
-  gpt: chalk.hex(colors.gpt),
-  local: chalk.hex(colors.local),
+  background:    '#0d1117',
+  surface:       '#13141f',
+  surfaceAlt:    '#1a1a2e',
+  userRowBg:     '#0d1f2d',
+  borderDim:     '#21262d',
+  borderDimmer:  '#161b22',
+  text:          '#e6edf3',
+  textDim:       '#6e7681',
+  textDimmer:    '#3d444d',
+  brand:         '#e040fb',
+  accent:        '#58a6ff',
+  success:       '#3fb950',
+  warning:       '#d29922',
+  error:         '#f85149',
+  thinking:      '#6e40c9',
+  diffAdd:       '#3fb950',
+  diffRemove:    '#f85149',
+  codeBg:        '#161b22',
+  separator:     '#3d444d',
+} as const;
+
+export const glyphs = {
+  brand:        '◆',
+  info:         'i',
+  running:      '◉',
+  success:      '✓',
+  error:        '✗',
+  prompt:       '>',
+  collapsed:    '▸',
+  expanded:     '▾',
+  tree1:        '├──',
+  tree2:        '└──',
+  sep:          '━',
+  sepLight:     '─',
+  borderLeft:   '│',
+  star:         '✦',
+  arrow:        '▹',
+  diamond:      '◈',
+  spin1:        '⣾',
+  spin2:        '⣽',
+  spin3:        '⣻',
+  spin4:        '⢿',
+  spin5:        '⡿',
+  spin6:        '⣟',
+  spin7:        '⣯',
+  spin8:        '⣷',
+} as const;
+
+// Chalk helpers for consistent styling
+export const c = {
+  brand: chalk.hex(theme.brand),
+  text: chalk.hex(theme.text),
+  textDim: chalk.hex(theme.textDim),
+  textDimmer: chalk.hex(theme.textDimmer),
+  accent: chalk.hex(theme.accent),
+  success: chalk.hex(theme.success),
+  warning: chalk.hex(theme.warning),
+  error: chalk.hex(theme.error),
+  thinking: chalk.hex(theme.thinking),
+  separator: chalk.hex(theme.separator),
   
   // Helpers
   bold: chalk.bold,
@@ -61,28 +72,27 @@ export const theme = {
   underline: chalk.underline,
 };
 
-// Model color mapping
-export function getModelColor(model: string): typeof chalk {
-  const modelLower = model.toLowerCase();
-  if (modelLower.includes('bob')) return theme.bob;
-  if (modelLower.includes('claude')) return theme.claude;
-  if (modelLower.includes('gemini')) return theme.gemini;
-  if (modelLower.includes('gpt')) return theme.gpt;
-  return theme.local;
-}
+// Spinner frames for animations
+export const spinnerFrames = [
+  glyphs.spin1,
+  glyphs.spin2,
+  glyphs.spin3,
+  glyphs.spin4,
+  glyphs.spin5,
+  glyphs.spin6,
+  glyphs.spin7,
+  glyphs.spin8,
+];
 
-// Status indicator
-export function getStatusIndicator(status: 'active' | 'inactive' | 'error'): string {
-  switch (status) {
-    case 'active':
-      return theme.success('●');
-    case 'inactive':
-      return theme.textDim('○');
-    case 'error':
-      return theme.error('●');
-    default:
-      return theme.textDim('○');
-  }
-}
+// Activity log message templates
+export const activityMessages = [
+  'indexing workspace...',
+  'generating execution plan...',
+  'scanning dependencies...',
+  'analyzing repository...',
+  'context engine compressing tokens...',
+  'waiting for model response...',
+  'building task packet...',
+];
 
 // Made with Bob

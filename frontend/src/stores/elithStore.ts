@@ -15,17 +15,18 @@ export interface ArchProposal {
 }
 
 export interface SessionResult {
-  files_changed: Array<{
+  files_changed?: Array<{
     path: string;
     action: string;
     description: string;
   }>;
-  why: string;
-  models_used: Array<{
+  why?: string;
+  models_used?: Array<{
     model: string;
     role: string;
   }>;
-  time_taken: string;
+  time_taken?: string;
+  bob_report_path?: string;
 }
 
 interface ElithStore {

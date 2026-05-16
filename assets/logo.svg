@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="400" height="400">
+  <!-- Bold italic e -->
+  <text
+    x="30"
+    y="82"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="80"
+    font-style="italic"
+    font-weight="bold"
+    text-anchor="middle"
+    fill="#000"
+  >e</text>
+
+  <!-- Superscript n -->
+
+<text
+x=“68”
+y=“38”
+font-family=“Georgia, ‘Times New Roman’, serif”
+font-size=“38”
+font-style=“italic”
+font-weight=“bold”
+text-anchor=“middle”
+fill=”#000”
+
+> n</text>
+
+</svg>

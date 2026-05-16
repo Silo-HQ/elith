@@ -1,45 +1,82 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
 import ModelBadge from '../components/ModelBadge';
 import { useElithStore } from '../stores/elithStore';
-import { mockOutput } from '../mockData';
+import { api } from '../services/api';
 
 export default function Execution() {
   const navigate = useNavigate();
-  const { activeModels, liveOutput, sessionStatus, setSessionStatus, appendOutput, clearOutput } = useElithStore();
+  const {
+    activeModels,
+    liveOutput,
+    sessionStatus,
+    sessionId,
+    repoPath,
+    vaultPath,
+    currentOperation,
+    setSessionStatus,
+    setSessionId,
+    appendOutput,
+    clearOutput
+  } = useElithStore();
+  
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   useEffect(() => {
-    // Simulate live output streaming with mock data
-    if (sessionStatus === 'running' && Object.keys(liveOutput).length === 0) {
-      clearOutput();
-      
-      // Simulate Bob output
-      if (activeModels.bob) {
-        mockOutput.bob.forEach((line, index) => {
-          setTimeout(() => {
-            appendOutput('bob', line);
-          }, index * 500);
-        });
-      }
+    // Start execution when component mounts
+    const startExecution = async () => {
+      if (sessionStatus === 'idle' && !sessionId) {
+        clearOutput();
+        setSessionStatus('running');
 
-      // Simulate Claude output
-      if (activeModels.claude) {
-        mockOutput.claude.forEach((line, index) => {
-          setTimeout(() => {
-            appendOutput('claude', line);
-          }, index * 700 + 1000);
-        });
-      }
+        try {
+          // Get active model (prefer first non-bob model, fallback to lmstudio)
+          const activeModelsList = Object.entries(activeModels)
+            .filter(([_, active]) => active)
+            .map(([model]) => model);
+          
+          const selectedModel = activeModelsList.find(m => m !== 'bob') || 'lmstudio';
 
-      // Mark as done after all output
-      setTimeout(() => {
-        setSessionStatus('done');
-        setTimeout(() => navigate('/results'), 2000);
-      }, 5000);
-    }
-  }, [sessionStatus, liveOutput, activeModels, appendOutput, clearOutput, setSessionStatus, navigate]);
+          // Execute operation
+          const response = await api.execute({
+            model: selectedModel,
+            operation: currentOperation || 'explain',
+            repo_path: repoPath || '.',
+            vault_path: vaultPath || undefined,
+          });
+
+          setSessionId(response.session_id);
+
+          // Start streaming output
+          eventSourceRef.current = api.streamSession(response.session_id, (event) => {
+            if (event.type === 'output' && event.model && event.content) {
+              appendOutput(event.model, event.content);
+            } else if (event.type === 'done') {
+              setSessionStatus('done');
+              eventSourceRef.current?.close();
+              setTimeout(() => navigate('/results'), 2000);
+            } else if (event.type === 'error') {
+              setSessionStatus('error');
+              eventSourceRef.current?.close();
+              console.error('Execution error:', event.error);
+            }
+          });
+        } catch (error) {
+          console.error('Failed to start execution:', error);
+          setSessionStatus('error');
+        }
+      }
+    };
+
+    startExecution();
+
+    // Cleanup on unmount
+    return () => {
+      eventSourceRef.current?.close();
+    };
+  }, []); // Empty deps - only run once on mount
 
   const activeModelsList = Object.entries(activeModels)
     .filter(([_, active]) => active)

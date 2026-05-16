@@ -6,26 +6,36 @@ Built with Textual - matches Bob Shell aesthetic exactly
 import sys
 from pathlib import Path
 
-# Add parent directory to path for direct execution
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add both parent and tui directory to path for imports
+tui_dir = Path(__file__).parent
+project_root = tui_dir.parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(tui_dir))
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import Header, Footer
 
+# Import screens - try multiple import patterns
 try:
-    from .screens.welcome import WelcomeScreen
-    from .screens.workspace import WorkspaceScreen
-    from .screens.execution import ExecutionScreen
-    from .screens.proposals import ProposalsScreen
-    from .screens.results import ResultsScreen
+    from tui.screens.welcome import WelcomeScreen
+    from tui.screens.workspace import WorkspaceScreen
+    from tui.screens.execution import ExecutionScreen
+    from tui.screens.proposals import ProposalsScreen
+    from tui.screens.results import ResultsScreen
 except ImportError:
-    from screens.welcome import WelcomeScreen
-    from screens.workspace import WorkspaceScreen
-    from screens.execution import ExecutionScreen
-    from screens.proposals import ProposalsScreen
-    from screens.results import ResultsScreen
+    try:
+        from screens.welcome import WelcomeScreen
+        from screens.workspace import WorkspaceScreen
+        from screens.execution import ExecutionScreen
+        from screens.proposals import ProposalsScreen
+        from screens.results import ResultsScreen
+    except ImportError:
+        from .screens.welcome import WelcomeScreen
+        from .screens.workspace import WorkspaceScreen
+        from .screens.execution import ExecutionScreen
+        from .screens.proposals import ProposalsScreen
+        from .screens.results import ResultsScreen
 
 
 class ElithApp(App):

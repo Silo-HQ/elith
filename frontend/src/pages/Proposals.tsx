@@ -3,19 +3,14 @@ import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
 import ProposalCard from '../components/ProposalCard';
 import { useElithStore } from '../stores/elithStore';
-import { mockProposals } from '../mockData';
 import { useEffect } from 'react';
 
 export default function Proposals() {
   const navigate = useNavigate();
-  const { proposals, setProposals, setSessionStatus } = useElithStore();
+  const { proposals, setSessionStatus } = useElithStore();
 
-  useEffect(() => {
-    // Load mock proposals if none exist
-    if (proposals.length === 0) {
-      setProposals(mockProposals);
-    }
-  }, [proposals.length, setProposals]);
+  // Proposals are now loaded from the API results
+  // No need to load mock data
 
   const handleImplement = (proposalId: string) => {
     console.log('Implementing proposal:', proposalId);

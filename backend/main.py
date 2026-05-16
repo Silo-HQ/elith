@@ -5,6 +5,10 @@ from fastapi.responses import JSONResponse
 from .routes import scan, execute, stream, models, results, tasks
 from .utils.logger import logger
 import time
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI(
     title="Elith API",

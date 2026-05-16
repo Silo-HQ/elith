@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import TopBar from '../components/TopBar';
 import Sidebar from '../components/Sidebar';
+import { api } from '../services/api';
 
 export default function Settings() {
   const [apiKeys, setApiKeys] = useState({
@@ -11,6 +12,32 @@ export default function Settings() {
   });
 
   const [saved, setSaved] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [configuredModels, setConfiguredModels] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch available models from API
+    const fetchModels = async () => {
+      try {
+        const models = await api.getModels();
+        setAvailableModels(models.available);
+        setConfiguredModels(models.configured);
+      } catch (error) {
+        console.error('Failed to fetch models:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchModels();
+
+    // Load saved API keys from localStorage
+    const saved = localStorage.getItem('elith_api_keys');
+    if (saved) {
+      setApiKeys(JSON.parse(saved));
+    }
+  }, []);
 
   const handleSave = () => {
     // Save to localStorage or backend
@@ -34,6 +61,33 @@ export default function Settings() {
             <p className="text-text-secondary mb-8">
               Configure API keys for AI providers
             </p>
+
+            {/* Available Models */}
+            <div className="bg-bg-secondary border border-border rounded-lg p-6 mb-6">
+              <h2 className="text-xl font-semibold mb-4">Available Models</h2>
+              {loading ? (
+                <p className="text-text-muted">Loading models...</p>
+              ) : (
+                <div className="space-y-2">
+                  {availableModels.map((model) => (
+                    <div key={model} className="flex items-center gap-3 p-2">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          configuredModels.includes(model) ? 'bg-success' : 'bg-text-muted'
+                        }`}
+                      />
+                      <span className="text-text-primary capitalize">{model}</span>
+                      {configuredModels.includes(model) && (
+                        <span className="text-xs text-success ml-auto">Configured</span>
+                      )}
+                    </div>
+                  ))}
+                  {availableModels.length === 0 && (
+                    <p className="text-text-muted">No models available</p>
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* API Keys Section */}
             <div className="bg-bg-secondary border border-border rounded-lg p-6 mb-6">

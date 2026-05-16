@@ -16,8 +16,9 @@ def main():
     """Main CLI entry point"""
     parser = argparse.ArgumentParser(
         prog='elith',
-        description='Elith - Universal repo-aware agent framework',
-        epilog='For more information, visit: https://github.com/yourusername/elith'
+        description='Elith - Universal repo-aware agent framework\n\nRun "elith" without arguments to launch the interactive TUI.',
+        epilog='For more information, visit: https://github.com/yourusername/elith',
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
     
     subparsers = parser.add_subparsers(dest='command', help='Available commands')
@@ -69,8 +70,17 @@ def main():
     
     args = parser.parse_args()
     
+    # Launch TUI by default when no command is provided (like Bob CLI)
     if not args.command:
-        parser.print_help()
+        print("🚀 Launching Elith TUI...")
+        try:
+            from tui.app import main as tui_main
+            tui_main()
+        except KeyboardInterrupt:
+            print("\n👋 Goodbye!")
+        except Exception as e:
+            print(f"\n❌ Error launching TUI: {e}")
+            print("\nTry running: elith --help")
         return
     
     # Handle commands

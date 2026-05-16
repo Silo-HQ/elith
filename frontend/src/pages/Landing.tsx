@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useElithStore } from '../stores/elithStore';
-import { mockContext } from '../mockData';
+import { api } from '../services/api';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -9,22 +9,40 @@ export default function Landing() {
   const [repoInput, setRepoInput] = useState('');
   const [vaultInput, setVaultInput] = useState('');
   const [showVault, setShowVault] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleStartSession = () => {
+  const handleStartSession = async () => {
     if (!repoInput.trim()) return;
 
-    setRepoPath(repoInput);
-    setVaultPath(vaultInput);
+    setLoading(true);
+    setError(null);
 
-    // Load mock context data
-    setContext(
-      mockContext.loaded_files,
-      mockContext.total_files,
-      mockContext.vault_notes,
-      mockContext.tokens_saved
-    );
+    try {
+      // Call real scan API
+      const scanResult = await api.scan({
+        repo_path: repoInput,
+        vault_path: vaultInput || undefined,
+      });
 
-    navigate('/workspace');
+      setRepoPath(repoInput);
+      setVaultPath(vaultInput);
+
+      // Load real context data from API
+      setContext(
+        scanResult.loaded_files,
+        scanResult.total_files,
+        scanResult.vault_notes,
+        scanResult.tokens_saved
+      );
+
+      navigate('/workspace');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to scan repository');
+      console.error('Scan error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const recentSessions = [
@@ -123,13 +141,20 @@ export default function Landing() {
             </div>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded px-4 py-3 text-red-400 text-sm">
+              {error}
+            </div>
+          )}
+
           {/* Start Button */}
           <button
             onClick={handleStartSession}
-            disabled={!repoInput.trim()}
+            disabled={!repoInput.trim() || loading}
             className="w-full bg-accent hover:bg-accent-dim disabled:bg-bg-hover disabled:text-text-muted text-white py-4 rounded-lg font-semibold text-lg transition-colors disabled:cursor-not-allowed"
           >
-            Start Session
+            {loading ? 'Scanning repository...' : 'Start Session'}
           </button>
         </div>
 

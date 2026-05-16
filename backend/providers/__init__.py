@@ -26,9 +26,11 @@ def initialize_providers(repo_path: str) -> Dict[str, BaseProvider]:
         except Exception as e:
             print(f"Warning: Failed to initialize Claude provider: {e}")
     
-    # LM Studio provider (always available if running)
+    # LM Studio provider
+    lmstudio_url = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
+    lmstudio_key = os.getenv("LMSTUDIO_API_KEY")
     try:
-        lmstudio = LMStudioProvider(repo_path)
+        lmstudio = LMStudioProvider(repo_path, base_url=lmstudio_url, api_key=lmstudio_key)
         if lmstudio.is_configured():
             providers["lmstudio"] = lmstudio
     except Exception as e:

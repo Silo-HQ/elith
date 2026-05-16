@@ -14,23 +14,28 @@ class LMStudioProvider(BaseProvider):
     Default endpoint: http://localhost:1234/v1
     """
     
-    def __init__(self, repo_path: str, base_url: str = "http://localhost:1234/v1", model: str = None):
+    def __init__(self, repo_path: str, base_url: str = "http://localhost:1234/v1", api_key: str = None, model: str = None):
         """
         Initialize LM Studio provider.
         
         Args:
             repo_path: Repository root path
             base_url: LM Studio API endpoint (default: http://localhost:1234/v1)
+            api_key: LM Studio API key (optional)
             model: Model name (optional, LM Studio auto-selects if None)
         """
         super().__init__(repo_path, ALL_SKILLS)
         self.base_url = base_url.rstrip('/')
+        self.api_key = api_key
         self.model = model or "local-model"  # LM Studio uses loaded model
     
     def is_configured(self) -> bool:
         """Check if LM Studio provider is accessible."""
         try:
-            response = requests.get(f"{self.base_url}/models", timeout=2)
+            headers = {}
+            if self.api_key:
+                headers["Authorization"] = f"Bearer {self.api_key}"
+            response = requests.get(f"{self.base_url}/models", headers=headers, timeout=2)
             return response.status_code == 200
         except:
             return False
@@ -65,9 +70,15 @@ class LMStudioProvider(BaseProvider):
             iteration += 1
             
             try:
+                # Prepare headers
+                headers = {"Content-Type": "application/json"}
+                if self.api_key:
+                    headers["Authorization"] = f"Bearer {self.api_key}"
+                
                 # Call LM Studio API
                 response = requests.post(
                     f"{self.base_url}/chat/completions",
+                    headers=headers,
                     json={
                         "model": self.model,
                         "messages": messages,

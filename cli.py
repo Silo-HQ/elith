@@ -74,8 +74,17 @@ def main():
     if not args.command:
         print("🚀 Launching Elith TUI...")
         try:
-            from tui.app import main as tui_main
-            tui_main()
+            import subprocess
+            import os
+            tui_path = Path(__file__).parent / 'tui'
+            result = subprocess.run(
+                ['npm', 'run', 'dev'],
+                cwd=str(tui_path),
+                check=False
+            )
+            if result.returncode != 0:
+                print("\n❌ Error launching TUI. Make sure dependencies are installed:")
+                print(f"   cd {tui_path} && npm install")
         except KeyboardInterrupt:
             print("\n👋 Goodbye!")
         except Exception as e:
@@ -91,8 +100,21 @@ def main():
     
     if args.command == 'tui':
         print("🚀 Launching Elith TUI...")
-        from tui.app import main as tui_main
-        tui_main()
+        try:
+            import subprocess
+            tui_path = Path(__file__).parent / 'tui'
+            result = subprocess.run(
+                ['npm', 'run', 'dev'],
+                cwd=str(tui_path),
+                check=False
+            )
+            if result.returncode != 0:
+                print("\n❌ Error launching TUI. Make sure dependencies are installed:")
+                print(f"   cd {tui_path} && npm install")
+        except KeyboardInterrupt:
+            print("\n👋 Goodbye!")
+        except Exception as e:
+            print(f"\n❌ Error launching TUI: {e}")
         return
     
     if args.command == 'explain':

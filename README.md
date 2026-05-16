@@ -38,10 +38,16 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 git clone https://github.com/yourusername/elith.git
 cd elith
 
-# Run automated setup
+# Option 1: Global installation (recommended)
+chmod +x global-install.sh
+./global-install.sh
+
+# Option 2: Local development setup
 chmod +x install.sh
 ./install.sh
 ```
+
+**Global Installation** installs both the TypeScript TUI and Python CLI wrapper globally, allowing you to run `elith` or `elith-tui` from anywhere.
 
 ### 2. Configure API Keys
 
@@ -72,11 +78,32 @@ Backend runs at: `http://localhost:8000`
 
 ### 4. Run Terminal UI (Recommended)
 
+**If installed globally:**
 ```bash
-# In a new terminal
-source venv/bin/activate
-python -m tui.app
+elith              # Launch TUI via Python CLI wrapper
+# or
+elith-tui          # Launch TUI directly
 ```
+
+**If running locally:**
+```bash
+# TypeScript TUI (production-ready)
+cd tui
+npm install
+npm run dev
+
+# Or Python TUI (legacy, archived)
+source venv/bin/activate
+python -m tui-python-legacy.app
+```
+
+The TypeScript TUI (`tui/`) features:
+- GitHub Dark theme with purple accents
+- Gemini CLI / Claude Code CLI aesthetic
+- Collapsible thinking blocks (Tab/Ctrl+I navigation)
+- Command palette (/, @, !, # triggers)
+- Real-time activity logs with animated spinners
+- Fixed layout with no shifting
 
 ### 5. Run Web Dashboard (Optional)
 
@@ -129,7 +156,8 @@ elith/
 │   ├── providers/        # AI model integrations
 │   ├── operations/       # explain, architect, test-gen, refactor
 │   └── routes/           # API endpoints
-├── tui/                  # Textual terminal interface
+├── tui/                  # TypeScript TUI (Ink 4, production-ready)
+├── tui-python-legacy/    # Python TUI (Textual, archived)
 ├── frontend/             # React web dashboard
 └── obsidian-template/    # Project memory vault
 ```

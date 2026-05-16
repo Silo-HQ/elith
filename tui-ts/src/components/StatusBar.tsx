@@ -1,85 +1,91 @@
+// Status bar - fixed at bottom, single line, always visible
+
 import React from 'react';
 import { Box, Text } from 'ink';
+import { useAppState } from '../store/appStore.js';
+import { theme, glyphs } from '../theme.js';
 
-interface StatusBarProps {
-  model?: string;
-  backendStatus?: 'connected' | 'disconnected' | 'error';
-  contextUsed?: number;
-  contextTotal?: number;
-  agentCount?: number;
-  mode?: string;
-  latency?: number;
-  status?: 'idle' | 'processing' | 'streaming' | 'error';
-}
+export const StatusBar = React.memo(() => {
+  const state = useAppState();
+  const cols = process.stdout.columns || 80;
 
-export const StatusBar: React.FC<StatusBarProps> = ({
-  model = 'qwen3-coder',
-  backendStatus = 'connected',
-  contextUsed = 12,
-  contextTotal = 128,
-  agentCount = 3,
-  mode = 'autonomous',
-  latency = 0,
-  status = 'idle',
-}) => {
-  const statusColor = {
-    connected: 'green',
-    disconnected: 'red',
-    error: 'red',
-  }[backendStatus];
+  // Format numbers
+  const formatTokens = (tokens: number): string => {
+    if (tokens >= 1000) {
+      return `${(tokens / 1000).toFixed(1)}k`;
+    }
+    return tokens.toString();
+  };
 
-  const statusIcon = {
-    idle: '●',
-    processing: '◐',
-    streaming: '◑',
-    error: '✗',
-  }[status];
+  // Responsive layout based on terminal width
+  const getStatusContent = () => {
+    if (cols < 80) {
+      // Minimal: only model and tokens
+      return (
+        <>
+          <Text color={theme.brand}>/model {state.model}</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.text}>{formatTokens(state.tokens)} tokens</Text>
+        </>
+      );
+    }
 
-  const stateColor = {
-    idle: 'green',
-    processing: 'yellow',
-    streaming: 'cyan',
-    error: 'red',
-  }[status];
+    if (cols < 120) {
+      // Medium: omit memory and session
+      return (
+        <>
+          <Text color={theme.textDim}>workspace {state.workspace}</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.accent}>branch {state.branch}</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={state.sandbox === 'no sandbox' ? theme.error : theme.accent}>
+            sandbox {state.sandbox}
+          </Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.brand}>/model {state.model}</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.accent}>quota {state.quotaPercent}% used</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.accent}>context {state.ctxPercent}% used</Text>
+          <Text color={theme.textDimmer}> · </Text>
+          <Text color={theme.text}>{formatTokens(state.tokens)} tokens</Text>
+        </>
+      );
+    }
+
+    // Full layout
+    return (
+      <>
+        <Text color={theme.textDim}>workspace {state.workspace}</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.accent}>branch {state.branch}</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={state.sandbox === 'no sandbox' ? theme.error : theme.accent}>
+          sandbox {state.sandbox}
+        </Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.brand}>/model {state.model}</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.accent}>quota {state.quotaPercent}% used</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.accent}>context {state.ctxPercent}% used</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.textDim}>memory {state.memoryMB} MB</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.textDim}>session {state.sessionId}</Text>
+        <Text color={theme.textDimmer}> · </Text>
+        <Text color={theme.text}>{formatTokens(state.tokens)} tokens</Text>
+      </>
+    );
+  };
 
   return (
-    <Box
-      borderStyle="single"
-      borderColor="magenta"
-      paddingX={1}
-      width="100%"
-    >
-      <Text>
-        <Text color="magenta" bold>ELITH</Text>
-        <Text color="gray"> :: </Text>
-        <Text color="gray">model:</Text>
-        <Text color="cyan">{model}</Text>
-        <Text color="gray"> :: </Text>
-        <Text color="gray">backend:</Text>
-        <Text color={statusColor}>{backendStatus}</Text>
-        <Text color="gray"> :: </Text>
-        <Text color="gray">ctx:</Text>
-        <Text color="white">{contextUsed}k</Text>
-        <Text color="gray">/</Text>
-        <Text color="white">{contextTotal}k</Text>
-        <Text color="gray"> :: </Text>
-        <Text color="gray">agents:</Text>
-        <Text color="yellow">{agentCount}</Text>
-        <Text color="gray"> :: </Text>
-        <Text color="gray">mode:</Text>
-        <Text color="magenta">{mode}</Text>
-        {latency > 0 && (
-          <>
-            <Text color="gray"> :: </Text>
-            <Text color="gray">latency:</Text>
-            <Text color="white">{latency}ms</Text>
-          </>
-        )}
-        <Text color="gray"> :: </Text>
-        <Text color={stateColor}>{statusIcon}</Text>
-      </Text>
+    <Box paddingTop={1} width="100%">
+      {getStatusContent()}
     </Box>
   );
-};
+});
+
+StatusBar.displayName = 'StatusBar';
 
 // Made with Bob

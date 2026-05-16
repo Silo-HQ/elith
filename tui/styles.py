@@ -4,7 +4,14 @@ Clean, professional styles inspired by OpenCode
 """
 
 from rich.style import Style
-from .theme import get_theme
+
+# Import from tui package
+import sys
+from pathlib import Path
+tui_dir = Path(__file__).parent
+sys.path.insert(0, str(tui_dir))
+
+from theme import get_theme
 
 
 def get_base_style() -> Style:

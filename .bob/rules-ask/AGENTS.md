@@ -1,47 +1,40 @@
-# Ask Mode Rules (Non-Obvious Only)
+# Project Documentation Rules (Non-Obvious Only)
 
-## Pre-Implementation Status
-This repository contains only specifications. When code exists, update this file with:
+## Architecture Documentation Location
 
-## Documentation Context Constraints
-- Obsidian vault structure is non-standard - not typical wiki organization
-- Vault contains: architecture notes, decisions, tech debt, coding standards, task briefs
-- Vault is NOT a vector database - it's structured engineering memory
-- Notes are linked via markdown links, not tags or folders
+- Primary spec: [`ELITH_AGENT_SKILLS.md`](../../ELITH_AGENT_SKILLS.md) - complete skill/provider architecture
+- Execution strategy: [`ELITH_EXECUTION_STRATEGY.md`](../../ELITH_EXECUTION_STRATEGY.md) - 48-hour hackathon plan
+- Main guidance: [`AGENTS.md`](../../AGENTS.md) - project architecture overview
 
-## Architecture Explanation Rules
-- Must reference actual spec files when explaining planned architecture
-- Distinguish between "planned" (from specs) and "implemented" (from code)
-- Context engine explanation requires understanding token economics
-- Skill layer explanation must cover provider-specific tool calling differences
+## Non-Obvious Project Structure
 
-## Non-Obvious Terminology
-- "Packet" = minimal context bundle (files + vault notes + task type)
-- "Skill" = repo-aware tool (not AI capability)
-- "Provider" = model wrapper (Bob/Claude/Gemini/etc)
-- "Operation" = high-level task type (explain/architect/refactor/etc)
-- "Novel architecture" = codebase-specific proposal (not textbook answer)
+- `backend/` contains Python FastAPI backend (planned, mostly empty)
+- `frontend/` and `tui/` are separate UI implementations (React + Textual)
+- `obsidian-template/` is NOT documentation - it's example vault structure for users
+- `bob-reports/` stores session logs to prove Bob usage for hackathon submission
 
-## Spec Document Organization
-- [`agent.md`](../../agent.md) = system identity and philosophy
-- [`docs/ELITH_PROJECT_SPEC.md`](../../docs/ELITH_PROJECT_SPEC.md) = technical architecture
-- [`docs/ELITH_EXECUTION_STRATEGY.md`](../../docs/ELITH_EXECUTION_STRATEGY.md) = 48-hour build plan
-- [`docs/ELITH_AGENT_SKILLS.md`](../../docs/ELITH_AGENT_SKILLS.md) = skill layer implementation
-- [`docs/ELITH_TUI_SPEC.md`](../../docs/ELITH_TUI_SPEC.md) = terminal UI specification
-- [`docs/ELITH_UX_SPEC.md`](../../docs/ELITH_UX_SPEC.md) = web dashboard specification
+## Skill Layer Concept (Critical)
 
-## Counterintuitive Design Decisions
-- TUI is first-class interface, not fallback (see [`docs/ELITH_TUI_SPEC.md`](../../docs/ELITH_TUI_SPEC.md:8-12))
-- Bob runs WITHOUT skills - it already has repo access natively
-- Context selection happens BEFORE model execution, not during
-- Token savings is a first-class metric, not optimization afterthought
-- Obsidian is engineering memory, not generic context storage
+Elith is NOT a typical AI wrapper - it's a **skill injection layer**:
+- Bob has native repo awareness (reads files, runs tests, commits code)
+- Other LLMs (Claude, Gemini, GPT) are repo-blind
+- Elith gives them 12 skills as tool-callable functions
+- Result: Any model operates at Bob-level capability
 
-## Hackathon-Specific Context
-- Project deadline: May 15-17, 2026 (48 hours)
-- Bob session reports required for judging - must auto-export
-- Demo must show: Bob native → Claude with skills → same quality
-- 3-minute demo constraint shapes all design decisions
+## Provider Architecture (Non-Standard)
 
-## When Code Exists
-Replace this template with actual non-obvious documentation patterns discovered during implementation.
+- Each provider has DIFFERENT tool calling API (Anthropic ≠ OpenAI ≠ Gemini)
+- BaseSkill has conversion methods: `to_anthropic_tool()`, `to_openai_tool()`, `to_gemini_function()`
+- Providers must loop until `stop_reason != "tool_use"` (not single request/response)
+- Bob provider is special case: subprocess wrapper, no skills needed
+
+## Context Engine Design
+
+- NOT implemented yet (empty files in `backend/context_engine/`)
+- Planned behavior: scan repo + read Obsidian vault → pick 4-6 most relevant files
+- Builds "task packet" = context string passed to all providers
+- Goal: avoid overwhelming models with entire codebase
+
+## Implementation Status
+
+Most files are empty - this is early-stage hackathon project. Refer to specification documents for intended architecture rather than existing code.

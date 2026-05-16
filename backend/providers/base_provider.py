@@ -1,8 +1,8 @@
-"""Base provider interface for AI models."""
+# backend/providers/base_provider.py
+
 from abc import ABC, abstractmethod
 from typing import List, Generator
 from ..skills.base_skill import BaseSkill
-
 
 class BaseProvider(ABC):
     """
@@ -45,16 +45,6 @@ class BaseProvider(ABC):
         """
         pass
     
-    @abstractmethod
-    def is_configured(self) -> bool:
-        """
-        Check if provider is properly configured.
-        
-        Returns:
-            True if provider has necessary API keys/config, False otherwise
-        """
-        pass
-    
     def execute_skill(self, skill_name: str, **kwargs) -> str:
         """
         Execute a skill by name with given parameters.
@@ -68,10 +58,6 @@ class BaseProvider(ABC):
         """
         if skill_name not in self.skills:
             return f"Error: skill '{skill_name}' not found"
-        
-        try:
-            return self.skills[skill_name].execute(self.repo_path, **kwargs)
-        except Exception as e:
-            return f"Error executing skill '{skill_name}': {str(e)}"
+        return self.skills[skill_name].execute(self.repo_path, **kwargs)
 
 # Made with Bob

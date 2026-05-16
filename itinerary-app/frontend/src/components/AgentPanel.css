@@ -1,0 +1,61 @@
+.agent-panel {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 15px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.agent-icon {
+  color: #00ff00;
+  font-size: 24px;
+}
+
+.agent-info {
+  flex: 1;
+}
+
+.agent-info h3 {
+  font-size: 14px;
+  color: #00ff00;
+  margin-bottom: 5px;
+}
+
+.agent-info p {
+  font-size: 12px;
+  color: #888;
+}
+
+.agent-arrow {
+  color: #00ff00;
+  font-size: 20px;
+}
+
+.agent-status {
+  font-size: 12px;
+  margin-bottom: 15px;
+  padding: 5px 10px;
+  background: rgba(0, 255, 0, 0.1);
+  border-radius: 4px;
+}
+
+.agent-logs {
+  flex: 1;
+  font-size: 11px;
+  line-height: 1.6;
+  color: #aaa;
+  overflow-y: auto;
+}
+
+.log-line {
+  margin-bottom: 5px;
+}

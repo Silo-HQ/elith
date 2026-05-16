@@ -1,54 +1,74 @@
-# Plan Mode Rules (Non-Obvious Only)
+# Project Architecture Rules (Non-Obvious Only)
 
-## Pre-Implementation Status
-This repository contains only specifications. When code exists, update this file with:
+## Critical Architectural Constraints
 
-## Architecture Planning Constraints
-- Must distinguish between "Bob native capabilities" vs "skill layer replication"
-- Context engine is NOT a vector database - it's deterministic file selection
-- Novel architecture proposals must be codebase-specific, never generic
-- All operations must be scoped, explainable, reviewable - no autonomous large-scale changes
+### BaseSkill/BaseProvider Dependency Chain
 
-## Critical Path Dependencies
-1. Skill layer tool calling (Hours 2-8) - core innovation, if broken everything fails
-2. Novel architecture quality (Hours 15-22) - killer feature, requires 6-8 hours prompt iteration
-3. End-to-end integration (Hours 9-14) - no demo without full loop working
+- `base_skill.py` and `base_provider.py` MUST be implemented first
+- ALL 12 skills depend on BaseSkill interface
+- ALL 5 providers depend on BaseProvider interface
+- No skill or provider can be tested until base classes exist
 
-See [`docs/ELITH_EXECUTION_STRATEGY.md`](../../docs/ELITH_EXECUTION_STRATEGY.md:276-289) for details.
+### Provider Tool Calling Loop (Non-Standard Pattern)
 
-## Non-Standard Architecture Patterns
-- **Skill layer is the innovation**: Not a wrapper, but the core that makes Elith work
-- **Bob runs natively**: No skills needed - it already has repo access
-- **Context selection is pre-execution**: Not dynamic during model run
-- **Obsidian is structured memory**: Engineering decisions database, not vector storage
-- **Token savings is first-class**: Must be visible in UI, not hidden metric
+Providers CANNOT use simple request/response - must implement loop:
 
-## Hidden Coupling Points
-- Context engine depends on vault structure (must handle missing vault gracefully)
-- Providers depend on skill registry initialization order
-- Operations must be provider-agnostic (can't assume Bob-specific features)
-- TUI and web dashboard share same backend API (must design for both)
-- Bob session reports required for judging (auto-export to `/bob_sessions`)
+```python
+while True:
+    response = client.messages.create(tools=tools, messages=messages)
+    yield text_blocks
+    if stop_reason == "tool_use":
+        execute_skills()
+        append_results_to_messages()
+        continue  # Loop back
+    else:
+        break  # Done
+```
 
-## Performance Bottlenecks (Planned)
-- File scanning on large repos (>1000 files) - needs optimization
-- Vault note parsing if notes are large - consider caching
-- Parallel provider execution may hit rate limits - needs coordination
-- SSE streaming to frontend may buffer - needs proper chunking
+This is NOT obvious from typical LLM API usage patterns.
 
-## Demo-Driven Design Decisions
-- 3-minute demo constraint shapes everything
-- Must show: Bob native → Claude with skills → same quality
-- Context reduction must be VISIBLE (6 files vs 312 total)
-- Novel architecture proposals must be impressive, not generic
-- All design decisions optimize for demo clarity over scalability
+### Bob Provider Special Architecture
 
-## Hackathon Submission Requirements
-- Bob session reports in `/bob_sessions` directory (mandatory for judging)
-- Demo video must be 2-3 minutes (not longer)
-- Must prove Bob usage through exported reports
-- GitHub repo must be public before submission
-- Cover image and slides required for submission
+- Bob does NOT receive skills (breaks the pattern)
+- Bob runs as subprocess: `["bob", "--task", prompt]`
+- Just streams stdout - no tool calling loop
+- This asymmetry is intentional: Bob has native capabilities
 
-## When Code Exists
-Replace this template with actual non-obvious architectural patterns discovered during implementation.
+### Context Engine Design (Planned)
+
+- Must pick 4-6 files per task (not all files)
+- Combines repo scan + Obsidian vault markdown
+- Builds "task packet" string passed to ALL providers
+- Critical: prevents context overflow on large repos
+
+### Skill Execution Contract
+
+- Skills MUST return `str` (even for errors)
+- Skills handle their own errors - providers don't catch exceptions
+- Error format: `"Error: description"` string
+- Skills auto-create directories: `os.makedirs(exist_ok=True)`
+
+### Implementation Priority (From Spec)
+
+1. Base classes (`base_skill.py`, `base_provider.py`)
+2. `read_file.py` skill - most critical, test immediately
+3. `bob_provider.py` - native baseline
+4. `claude_provider.py` - proof of concept (when Claude calls read_file, Elith works)
+5. Remaining 11 skills
+6. Other providers (Gemini, OpenAI, Ollama)
+
+### Testing Strategy
+
+Test skills in isolation BEFORE provider integration:
+```python
+skill = ReadFileSkill()
+result = skill.execute("/path/to/repo", "src/auth/views.py")
+# Should return real file content, not mock data
+```
+
+### Hackathon Constraints
+
+- 48-hour timeline (May 15-17, 2026)
+- Demo-first approach: working > perfect
+- Must prove Bob usage via session logs in `bob-reports/`
+- Three parallel tracks: backend (You), skills/providers (Basil Joy), UI (Johann)

@@ -24,13 +24,8 @@ class ClaudeProvider(BaseProvider):
             model: Claude model to use
         """
         super().__init__(repo_path, ALL_SKILLS)
-        self.api_key = api_key
-        self.client = anthropic.Anthropic(api_key=api_key) if api_key else None
+        self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
-    
-    def is_configured(self) -> bool:
-        """Check if Claude provider is properly configured."""
-        return self.api_key is not None and self.api_key != ""
     
     def run(self, prompt: str, context: str = "") -> Generator[str, None, None]:
         """

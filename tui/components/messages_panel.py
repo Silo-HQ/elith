@@ -100,5 +100,19 @@ class MessagesPanel(VerticalScroll):
     def clear_messages(self) -> None:
         """Clear all messages"""
         self.query("Message").remove()
+    
+    def update_last_message(self, new_content: str) -> None:
+        """Update the content of the last message"""
+        messages = self.query(Message)
+        if messages:
+            last_message = messages[-1]
+            # Store properties before removing
+            role = last_message.role
+            model = last_message.model
+            timestamp = last_message.timestamp
+            # Remove the old message
+            last_message.remove()
+            # Add updated message with same properties
+            self.add_message(role, new_content, model, timestamp)
 
 # Made with Bob

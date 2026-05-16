@@ -12,7 +12,7 @@ from ..context_engine.vault_reader import VaultReader
 from ..context_engine.packet_builder import PacketBuilder
 from ..models.task_packet import TaskPacket
 from ..router.model_router import router as model_router
-from ..operations import explain, architect, test_gen
+from ..operations import explain, architect, test_gen, refactor
 
 router = APIRouter()
 
@@ -104,6 +104,7 @@ async def run_operation(session_id: str, request: ExecuteRequest):
             "explain": explain.build_explain_prompt,
             "architect": architect.build_architect_prompt,
             "test-gen": test_gen.build_test_gen_prompt,
+            "refactor": refactor.build_refactor_prompt,
         }
         
         if request.operation not in operation_map:

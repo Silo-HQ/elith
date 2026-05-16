@@ -6,6 +6,11 @@ Clean, professional interface with purple accents
 import sys
 from pathlib import Path
 from datetime import datetime
+import os
+import httpx
+import asyncio
+import json
+from typing import AsyncGenerator
 
 # Add paths for imports
 tui_dir = Path(__file__).parent
@@ -18,6 +23,7 @@ from textual.binding import Binding
 from textual.containers import Container, Horizontal, Vertical
 from textual.widgets import Header, Footer, Static
 from textual.reactive import reactive
+from textual.worker import Worker, WorkerState
 
 from .theme import get_theme
 from .components.chat_input import ChatInput
@@ -140,14 +146,101 @@ Footer {
             datetime.now().strftime("%H:%M")
         )
         
-        # TODO: Process the message and get AI response
-        # For now, just echo back
+        # Send to backend asynchronously
+        self.send_to_backend(event.value)
+    
+    @staticmethod
+    async def call_backend(message: str, model: str = "openrouter") -> AsyncGenerator[str, None]:
+        """Call backend API and stream response"""
+        backend_url = os.getenv("ELITH_BACKEND_URL", "http://localhost:8000")
+        repo_path = os.getcwd()
+        
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                async with client.stream(
+                    "POST",
+                    f"{backend_url}/api/chat/stream",
+                    json={
+                        "message": message,
+                        "model": model,
+                        "repo_path": repo_path
+                    }
+                ) as response:
+                    if response.status_code != 200:
+                        yield f"Error: Backend returned status {response.status_code}\n"
+                        return
+                    
+                    # Process SSE stream
+                    async for line in response.aiter_lines():
+                        if line.startswith("data: "):
+                            data_str = line[6:]  # Remove "data: " prefix
+                            try:
+                                import json
+                                data = json.loads(data_str)
+                                
+                                if "error" in data:
+                                    yield f"Error: {data['error']}\n"
+                                    return
+                                elif "chunk" in data:
+                                    yield data["chunk"]
+                                elif data.get("done"):
+                                    return
+                            except Exception:
+                                # Plain text chunk
+                                yield data_str
+        
+        except httpx.ConnectError:
+            yield "Error: Cannot connect to backend. Make sure the backend server is running:\n\nuvicorn backend.main:app --reload --port 8000"
+        except Exception as e:
+            yield f"Error: {str(e)}"
+    
+    def send_to_backend(self, message: str) -> None:
+        """Send message to backend and stream response"""
+        messages = self.query_one("#messages", MessagesPanel)
+        
+        # Add initial message
+        loading_time = datetime.now().strftime("%H:%M")
         messages.add_message(
             "assistant",
-            f"You said: {event.value}\n\nThis is a placeholder response. The backend integration is pending.",
+            "",
             "bob",
-            datetime.now().strftime("%H:%M")
+            loading_time
         )
+        
+        # Stream response
+        async def stream_response():
+            """Stream response from backend"""
+            response_text = ""
+            async for chunk in self.call_backend(message):
+                response_text += chunk
+                messages.update_last_message(response_text)
+        
+        # Run streaming in worker
+        self.run_worker(
+            stream_response(),
+            name="backend_stream",
+            description="Streaming from backend"
+        )
+    
+    def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
+        """Handle worker state changes"""
+        if event.worker.name == "backend_call":
+            if event.state == WorkerState.SUCCESS:
+                # Get the response
+                response = event.worker.result
+                
+                # Update the last message with the response
+                messages = self.query_one("#messages", MessagesPanel)
+                if response:
+                    messages.update_last_message(str(response))
+                else:
+                    messages.update_last_message("No response from backend")
+            
+            elif event.state == WorkerState.ERROR:
+                # Show error
+                messages = self.query_one("#messages", MessagesPanel)
+                error_msg = str(event.worker.error) if event.worker.error else "Unknown error"
+                messages.update_last_message(f"Error: {error_msg}")
     
     def action_new_session(self) -> None:
         """Start a new session"""

@@ -2,7 +2,7 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from .routes import scan, execute, stream, models, results, tasks
+from .routes import scan, execute, stream, models, results, tasks, chat, create_project
 from .utils.logger import logger
 import time
 from dotenv import load_dotenv
@@ -26,6 +26,8 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(chat.router, prefix="/api", tags=["chat"])
+app.include_router(create_project.router, prefix="/api", tags=["create-project"])
 app.include_router(scan.router, prefix="/api", tags=["scan"])
 app.include_router(execute.router, prefix="/api", tags=["execute"])
 app.include_router(stream.router, prefix="/api", tags=["stream"])

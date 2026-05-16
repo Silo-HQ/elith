@@ -1,0 +1,20 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body.dark {
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+body.light {
+  background: #ffffff;
+  color: #000000;
+}
+
+.app {
+  min-height: 100vh;
+  font-family: 'Monaco', 'Courier New', monospace;
+}

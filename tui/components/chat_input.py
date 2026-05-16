@@ -20,27 +20,24 @@ class ChatInput(Container):
     ChatInput {
         height: 3;
         dock: bottom;
-        background: #0A0A0A;
-        border-top: solid #27272A;
+        border-top: solid $accent;
     }
     
     ChatInput.focused {
-        border-top: solid #A855F7;
+        border-top: solid $primary;
     }
     
     ChatInput #prompt {
         width: 2;
         height: 1;
         content-align: center middle;
-        color: #A855F7;
-        background: #0A0A0A;
+        color: $primary;
         text-style: bold;
     }
     
     ChatInput #input {
         width: 1fr;
         height: 1;
-        background: #0A0A0A;
         border: none;
         padding: 0 1;
     }

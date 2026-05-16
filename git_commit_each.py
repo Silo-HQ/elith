@@ -38,19 +38,19 @@ def get_commit_message(file_path, is_deletion=False):
 
 def main():
     # Get modified/deleted files
-    result = subprocess.run(["git", "ls-files", "--deleted", "--modified"], capture_output=True, text=True)
-    modified_files = result.stdout.splitlines()
+    result = subprocess.run(["git", "ls-files", "-z", "--deleted", "--modified"], capture_output=True)
+    modified_files = result.stdout.decode('utf-8').split('\0')
 
     # Get untracked files
-    result = subprocess.run(["git", "ls-files", "--others", "--exclude-standard"], capture_output=True, text=True)
-    untracked_files = result.stdout.splitlines()
+    result = subprocess.run(["git", "ls-files", "-z", "--others", "--exclude-standard"], capture_output=True)
+    untracked_files = result.stdout.decode('utf-8').split('\0')
 
     # Combine and deduplicate
-    all_files = sorted(list(set(modified_files + untracked_files)))
+    all_files = sorted(list(set(f for f in (modified_files + untracked_files) if f)))
 
     # Identify deleted files
-    result = subprocess.run(["git", "ls-files", "--deleted"], capture_output=True, text=True)
-    deleted_files = set(result.stdout.splitlines())
+    result = subprocess.run(["git", "ls-files", "-z", "--deleted"], capture_output=True)
+    deleted_files = set(f for f in result.stdout.decode('utf-8').split('\0') if f)
 
     for file_path in all_files:
         if not file_path:

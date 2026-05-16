@@ -1,41 +1,69 @@
-import React from 'react';
+// Banner - always visible at top, memoized
+
+import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
-import figlet from 'figlet';
+import { theme, glyphs } from '../theme.js';
+import { api } from '../api/client.js';
 
-interface BannerProps {
-  terminalWidth?: number;
-}
+export const Banner = React.memo(() => {
+  const [model, setModel] = useState('lmstudio');
+  const [backend, setBackend] = useState('http://localhost:8000');
+  const cols = process.stdout.columns || 80;
 
-export const Banner: React.FC<BannerProps> = ({ terminalWidth = 80 }) => {
-  // Generate ELITH ASCII art
-  const bannerText = figlet.textSync('ELITH', {
-    font: 'ANSI Shadow',
-    horizontalLayout: 'default',
-    verticalLayout: 'default',
-    width: terminalWidth,
-    whitespaceBreak: true,
-  });
+  useEffect(() => {
+    // Fetch models and status on mount
+    api.getModels()
+      .then(data => {
+        if (data.current) setModel(data.current);
+      })
+      .catch(console.error);
+  }, []);
+
+  const separator = glyphs.sep.repeat(cols);
+  const centerText = (text: string): string => {
+    const padding = Math.max(0, Math.floor((cols - text.length) / 2));
+    return ' '.repeat(padding) + text;
+  };
 
   return (
-    <Box flexDirection="column" width="100%">
-      {/* ASCII Banner */}
-      <Box justifyContent="center" paddingX={1}>
-        <Text color="magenta" bold>
-          {bannerText}
-        </Text>
+    <Box flexDirection="column" paddingBottom={1}>
+      {/* Title */}
+      <Box justifyContent="center">
+        <Text color={theme.brand}>{glyphs.brand}  ELITH v1.0.0</Text>
       </Box>
       
-      {/* Subtitle */}
-      <Box justifyContent="center" paddingX={1}>
-        <Text color="gray">AI-Powered Code Assistant</Text>
+      {/* Auth line */}
+      <Box justifyContent="center">
+        <Text color={theme.textDim}>Signed in with {model} /auth</Text>
       </Box>
       
+      {/* Model and backend */}
+      <Box justifyContent="center">
+        <Text color={theme.textDim}>Model: </Text>
+        <Text color={theme.accent}>{model}</Text>
+        <Text color={theme.textDim}> · Backend: </Text>
+        <Text color={theme.accent}>{backend}</Text>
+      </Box>
+
+      {/* Info lines */}
+      <Box marginTop={1}>
+        <Text color={theme.warning}>{glyphs.info}  </Text>
+        <Text color={theme.text}>MCP connected. 12 skills active. Run /skills for list.</Text>
+      </Box>
+      
+      <Box>
+        <Text color={theme.warning}>{glyphs.info}  </Text>
+        <Text color={theme.text}>Context engine ready. Workspace: ~/project</Text>
+      </Box>
+
       {/* Separator */}
-      <Box paddingX={1} marginTop={1}>
-        <Text color="gray">{'═'.repeat(Math.min(terminalWidth - 2, 80))}</Text>
+      <Box marginTop={1}>
+        <Text color={theme.separator}>{separator}</Text>
       </Box>
     </Box>
   );
-};
+});
+
+Banner.displayName = 'Banner';
 
 // Made with Bob

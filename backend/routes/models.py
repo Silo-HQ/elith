@@ -1,6 +1,7 @@
 """Models endpoint for available AI providers."""
 from fastapi import APIRouter
 from typing import Dict, List
+from ..router.model_router import router as model_router
 
 router = APIRouter()
 
@@ -12,11 +13,13 @@ async def get_models() -> Dict[str, List[str]]:
     
     Returns which AI providers are available for use.
     """
-    # TODO: Check actual provider configuration
-    # For now, return placeholder list
+    # Get actual configured models from router
+    available = model_router.get_available_models()
+    configured = model_router.get_configured_models()
+    
     return {
-        "available": ["bob", "claude", "gemini", "openai", "ollama"],
-        "configured": []  # Will be populated based on API keys
+        "available": available,
+        "configured": configured
     }
 
 # Made with Bob

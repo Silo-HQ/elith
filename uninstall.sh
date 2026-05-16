@@ -32,4 +32,4 @@ echo ""
 echo "To reinstall, run: ./install.sh"
 echo ""
 
-# Made with Bob
+# Made with Bobhello

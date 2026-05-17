@@ -76,6 +76,9 @@ export interface AppState {
   focusedExpandableId: string | null;
   mode: 'autonomous' | 'confirm';
   backendStatus: 'online' | 'offline' | 'unknown';
+  thinkingWord: string;
+  thinkingStartedAt: number | null;
+  shellMode: boolean;
 }
 
 export type AppAction =
@@ -105,7 +108,10 @@ export type AppAction =
   | { type: 'SET_FOCUS_EXPANDABLE'; payload: { id: string | null } }
   | { type: 'TOGGLE_EXPANDABLE'; payload: { id: string } }
   | { type: 'UPDATE_STATUS'; payload: { status: AgentStatus } }
-  | { type: 'UPDATE_STATS'; payload: Partial<Pick<AppState, 'ctxPercent' | 'quotaPercent' | 'memoryMB' | 'tokens' | 'branch' | 'workspace' | 'sandbox'>> };
+  | { type: 'UPDATE_STATS'; payload: Partial<Pick<AppState, 'ctxPercent' | 'quotaPercent' | 'memoryMB' | 'tokens' | 'branch' | 'workspace' | 'sandbox'>> }
+  | { type: 'SET_THINKING_WORD'; payload: string }
+  | { type: 'SET_THINKING_START'; payload: number | null }
+  | { type: 'SET_SHELL_MODE'; payload: boolean };
 
 // Command panel items
 export interface CommandItem {

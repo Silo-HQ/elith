@@ -32,6 +32,7 @@ export const EnhancedBanner: React.FC<{
       const timer = setTimeout(() => setVisible(true), 100);
       return () => clearTimeout(timer);
     }
+    return undefined;
   }, [showAnimation]);
 
   useEffect(() => {

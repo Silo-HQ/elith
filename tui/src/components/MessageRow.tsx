@@ -18,20 +18,13 @@ interface MessageRowProps {
 }
 
 export const MessageRow: React.FC<MessageRowProps> = ({ message, focusedExpandableId }) => {
-  const formatTime = (timestamp: number): string => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  };
-
   // User message
   if (message.role === 'user') {
     return (
       <Box flexDirection="column" marginBottom={1}>
-        <Box backgroundColor={theme.userRowBg} width="100%" paddingX={1} paddingY={1}>
-          <Text color={theme.accent}>{glyphs.prompt} </Text>
+        <Box>
+          <Text color={theme.textDim}>{glyphs.prompt} </Text>
           <Text color={theme.text}>{message.text}</Text>
-          <Box flexGrow={1} />
-          <Text color={theme.textDim} dimColor>{formatTime(message.timestamp)}</Text>
         </Box>
       </Box>
     );
@@ -41,8 +34,8 @@ export const MessageRow: React.FC<MessageRowProps> = ({ message, focusedExpandab
   if (message.role === 'system') {
     return (
       <Box marginBottom={1}>
-        <Text color={theme.warning}>{glyphs.info} </Text>
-        <Text color={theme.text}>{message.text}</Text>
+        <Text color={theme.textDim}>✱ </Text>
+        <Text color={theme.textDim} italic>{message.text}</Text>
       </Box>
     );
   }
@@ -79,9 +72,9 @@ export const MessageRow: React.FC<MessageRowProps> = ({ message, focusedExpandab
 
       {/* Agent response text */}
       {message.text && (
-        <Box paddingLeft={2} flexDirection="column">
+        <Box flexDirection="column">
           <Box>
-            <Text color={theme.brand}>{glyphs.brand} </Text>
+            <Text color={theme.brand}>● </Text>
             <Text color={theme.text}>{message.text}</Text>
           </Box>
         </Box>

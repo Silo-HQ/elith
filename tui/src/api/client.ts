@@ -18,67 +18,104 @@ class ApiClient {
   }
 
   private async fetch<T>(endpoint: string, options?: RequestInit): Promise<T> {
-    const url = `${this.baseUrl}${endpoint}`;
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
-    });
+    try {
+      const url = `${this.baseUrl}${endpoint}`;
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          ...options?.headers,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
+      }
+
+      return response.json();
+    } catch (error) {
+      // Silently fail - dispatch will handle offline status
+      throw error;
     }
-
-    return response.json();
   }
 
   async getModels(): Promise<ModelsResponse> {
-    return this.fetch<ModelsResponse>('/api/models');
+    try {
+      return await this.fetch<ModelsResponse>('/api/models');
+    } catch {
+      return { available: [], configured: [], current: 'lmstudio' };
+    }
   }
 
   async getStatus(): Promise<StatusResponse> {
-    return this.fetch<StatusResponse>('/api/status');
+    try {
+      return await this.fetch<StatusResponse>('/api/status');
+    } catch {
+      throw new Error('Backend offline');
+    }
   }
 
   async execute(request: ExecuteRequest): Promise<ExecuteResponse> {
-    return this.fetch<ExecuteResponse>('/api/execute', {
-      method: 'POST',
-      body: JSON.stringify(request),
-    });
+    try {
+      return await this.fetch<ExecuteResponse>('/api/execute', {
+        method: 'POST',
+        body: JSON.stringify(request),
+      });
+    } catch {
+      throw new Error('Backend offline');
+    }
   }
 
   async scanWorkspace(path: string): Promise<FileItem[]> {
-    return this.fetch<FileItem[]>(`/api/scan?path=${encodeURIComponent(path)}`);
+    try {
+      return await this.fetch<FileItem[]>(`/api/scan?path=${encodeURIComponent(path)}`);
+    } catch {
+      return [];
+    }
   }
 
   async executeShell(command: string): Promise<{ output: string; exitCode: number }> {
-    return this.fetch('/api/execute', {
-      method: 'POST',
-      body: JSON.stringify({
-        type: 'shell',
-        command,
-      }),
-    });
+    try {
+      return await this.fetch('/api/execute', {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'shell',
+          command,
+        }),
+      });
+    } catch {
+      return { output: 'Backend offline', exitCode: 1 };
+    }
   }
 
   async approveChange(sessionId: string, approved: boolean): Promise<void> {
-    await this.fetch(`/api/sessions/${sessionId}/approve`, {
-      method: 'POST',
-      body: JSON.stringify({ approved }),
-    });
+    try {
+      await this.fetch(`/api/sessions/${sessionId}/approve`, {
+        method: 'POST',
+        body: JSON.stringify({ approved }),
+      });
+    } catch {
+      // Silently fail
+    }
   }
 
   async getContextFiles(sessionId: string): Promise<string[]> {
-    return this.fetch<string[]>(`/api/sessions/${sessionId}/context`);
+    try {
+      return await this.fetch<string[]>(`/api/sessions/${sessionId}/context`);
+    } catch {
+      return [];
+    }
   }
 
   async addContextFile(sessionId: string, path: string): Promise<void> {
-    await this.fetch(`/api/sessions/${sessionId}/context`, {
-      method: 'POST',
-      body: JSON.stringify({ path }),
-    });
+    try {
+      await this.fetch(`/api/sessions/${sessionId}/context`, {
+        method: 'POST',
+        body: JSON.stringify({ path }),
+      });
+    } catch {
+      // Silently fail
+    }
   }
 }
 

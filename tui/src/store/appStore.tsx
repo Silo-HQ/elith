@@ -27,6 +27,9 @@ const initialState: AppState = {
   focusedExpandableId: null,
   mode: 'autonomous',
   backendStatus: 'unknown',
+  thinkingWord: 'Thinking',
+  thinkingStartedAt: null,
+  shellMode: false,
 };
 
 // Helper functions
@@ -357,6 +360,18 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...action.payload,
         memoryMB: getMemoryUsage(),
       };
+    }
+
+    case 'SET_THINKING_WORD': {
+      return { ...state, thinkingWord: action.payload };
+    }
+
+    case 'SET_THINKING_START': {
+      return { ...state, thinkingStartedAt: action.payload };
+    }
+
+    case 'SET_SHELL_MODE': {
+      return { ...state, shellMode: action.payload };
     }
 
     default:

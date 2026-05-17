@@ -1,4 +1,4 @@
-// Transcript - scrollable, fixed-height message container
+// Transcript - borderless message container, Claude Code style
 
 import React from 'react';
 import { Box, Text } from 'ink';
@@ -13,26 +13,32 @@ export const Transcript: React.FC = () => {
     <Box
       flexDirection="column"
       flexGrow={1}
-      paddingX={1}
+      paddingX={2}
       paddingY={1}
-      overflow="hidden"
     >
       {state.messages.length === 0 ? (
         <Text color={theme.textDim}>No messages yet. Start typing to begin...</Text>
       ) : (
-        state.messages.map((message) => (
-          <MessageRow
-            key={message.id}
-            message={message}
-            focusedExpandableId={state.focusedExpandableId}
-          />
+        state.messages.map((message, index) => (
+          <React.Fragment key={message.id}>
+            <MessageRow
+              message={message}
+              focusedExpandableId={state.focusedExpandableId}
+            />
+            {/* Separator between messages */}
+            {index < state.messages.length - 1 && (
+              <Box marginY={1}>
+                <Text color={theme.textDimmer}>{'─'.repeat(80)}</Text>
+              </Box>
+            )}
+          </React.Fragment>
         ))
       )}
       
       {/* Auto-scroll indicator */}
-      {!state.autoScroll && (
+      {!state.autoScroll && state.messages.length > 0 && (
         <Box marginTop={1}>
-          <Text color={theme.textDim} dimColor>
+          <Text color={theme.textDim}>
             ↓ new messages — press End to follow
           </Text>
         </Box>

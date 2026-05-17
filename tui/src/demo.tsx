@@ -6,7 +6,7 @@ import { render, Box, Text } from 'ink';
 import { EnhancedBanner } from './components/enhanced/EnhancedBanner.js';
 import { ThinkingSpinner, LoadingSpinner, ProcessingSpinner } from './components/animations/EnhancedSpinner.js';
 import { ProgressBar, IndeterminateProgressBar, StepProgress } from './components/ui/ProgressBar.js';
-import { SplitPane, TriplePaneLayout, CollapsibleSidebar } from './components/layout/SplitPane.js';
+import { SplitPane } from './components/layout/SplitPane.js';
 import { TabBar, useTabManager, TabContent } from './components/layout/TabBar.js';
 import { FileTree } from './components/layout/FileTree.js';
 import { useTheme } from './hooks/useTheme.js';
@@ -14,8 +14,8 @@ import { useTheme } from './hooks/useTheme.js';
 const DemoApp: React.FC = () => {
   const [demoStep, setDemoStep] = useState(0);
   const [progress, setProgress] = useState(0);
-  const { theme, currentThemeName, nextTheme, availableThemes } = useTheme();
-  const { tabs, activeTabId, addTab, selectTab, nextTab } = useTabManager([
+  const { theme, currentThemeName, availableThemes } = useTheme();
+  const { tabs, activeTabId, addTab, selectTab } = useTabManager([
     { id: '1', title: 'Demo 1', icon: '🎨' },
     { id: '2', title: 'Demo 2', icon: '🚀' },
   ]);
@@ -65,13 +65,13 @@ const DemoApp: React.FC = () => {
         <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
           <Text color={theme.colors.brand} bold>✨ Spinners & Animations</Text>
           <Box marginTop={1}>
-            <ThinkingSpinner text="Thinking..." />
+            <ThinkingSpinner />
           </Box>
           <Box marginTop={1}>
-            <LoadingSpinner text="Loading files..." />
+            <LoadingSpinner />
           </Box>
           <Box marginTop={1}>
-            <ProcessingSpinner text="Processing data..." />
+            <ProcessingSpinner />
           </Box>
         </Box>
       )}

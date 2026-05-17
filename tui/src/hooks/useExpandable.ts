@@ -1,6 +1,6 @@
 // Hook for managing expandable blocks (thinking, subagent) with Tab/Ctrl+I navigation
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAppState, useAppDispatch } from '../store/appStore.js';
 import type { ExpandableBlock } from '../types.js';
 

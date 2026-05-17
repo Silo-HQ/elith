@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { readdirSync, statSync } from 'fs';
-import { join, relative, basename } from 'path';
+import { join, basename } from 'path';
 
 interface FileNode {
   name: string;
@@ -186,7 +186,6 @@ export const FileTree: React.FC<FileTreeProps> = ({
   selectedPath,
   maxDepth = 3,
   showHidden = false,
-  gitStatus = false,
 }) => {
   const [tree, setTree] = useState<FileNode[]>([]);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());

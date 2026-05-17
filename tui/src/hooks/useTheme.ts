@@ -1,5 +1,5 @@
 // Theme management hook
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { getTheme, getThemeNames, type Theme } from '../themes/index.js';
 
 const THEME_STORAGE_KEY = 'elith-tui-theme';

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Text } from 'ink';
 import TextInput from 'ink-text-input';
 import { CommandMenu } from './CommandMenu.js';
+import { theme } from '../theme.js';
 
 interface ChatInputProps {
   onSubmit: (value: string) => void;
@@ -14,6 +15,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
 }) => {
   const [value, setValue] = useState('');
   const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const [isFocused] = useState(true);
 
   const handleChange = (newValue: string) => {
     setValue(newValue);
@@ -29,56 +31,61 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     }
   };
 
-  const handleMenuClose = () => {
-    setShowCommandMenu(false);
-  };
+  const borderColor = isFocused ? theme.brand : theme.borderDim;
+  const promptColor = isFocused ? theme.accent : theme.textDim;
 
   return (
     <Box flexDirection="column" width="100%">
-      {/* Separator Line */}
-      <Box width="100%" paddingX={1}>
-        <Text color="magenta">{'═'.repeat(80)}</Text>
-      </Box>
-
-      {/* Input Box with improved styling */}
-      <Box flexDirection="column" paddingX={1} paddingY={1}>
-        {/* Label */}
-        <Box marginBottom={1}>
-          <Text color="gray">╭─ </Text>
-          <Text color="magenta" bold>prompt</Text>
-          <Text color="gray"> {'─'.repeat(70)}╮</Text>
-        </Box>
-        
-        {/* Input area */}
-        <Box paddingX={2}>
-          <Text color="magenta" bold>❯ </Text>
-          <TextInput
-            value={value}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-            placeholder={placeholder}
-          />
-        </Box>
-        
-        {/* Bottom border */}
-        <Box marginTop={1}>
-          <Text color="gray">╰{'─'.repeat(78)}╯</Text>
-        </Box>
-      </Box>
-
-      {/* Command Menu - BELOW input, ABOVE status bar */}
+      {/* Command Menu - ABOVE input for better visibility */}
       {showCommandMenu && (
-        <Box marginTop={1} marginBottom={1}>
+        <Box marginBottom={1}>
           <CommandMenu
             filter={value.slice(1)}
             onSelect={(command) => {
               setValue(command);
               setShowCommandMenu(false);
             }}
-            onClose={handleMenuClose}
           />
         </Box>
       )}
+
+      {/* Input Box with polished styling */}
+      <Box flexDirection="column" paddingX={2} paddingY={1}>
+        {/* Top border with label */}
+        <Box>
+          <Text color={borderColor}>╭─ </Text>
+          <Text color={promptColor} bold>✎ prompt</Text>
+          <Text color={borderColor}> {'─'.repeat(68)}╮</Text>
+        </Box>
+        
+        {/* Input area with enhanced prompt */}
+        <Box paddingX={1} paddingY={1}>
+          <Text color={promptColor} bold>› </Text>
+          <TextInput
+            value={value}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            placeholder={placeholder}
+            showCursor={true}
+          />
+        </Box>
+        
+        {/* Bottom border */}
+        <Box>
+          <Text color={borderColor}>╰{'─'.repeat(78)}╯</Text>
+        </Box>
+
+        {/* Hint text */}
+        {!value && (
+          <Box marginTop={1} paddingX={1}>
+            <Text color={theme.textDimmer}>
+              💡 Tip: Use <Text color={theme.accent}>/</Text> for commands,
+              <Text color={theme.accent}> @</Text> for files,
+              <Text color={theme.accent}> #</Text> for context
+            </Text>
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };

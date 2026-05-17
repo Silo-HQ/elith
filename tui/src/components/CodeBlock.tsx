@@ -11,7 +11,7 @@ interface CodeBlockProps {
 
 export const CodeBlock: React.FC<CodeBlockProps> = ({ block }) => {
   return (
-    <Box flexDirection="column" paddingLeft={4} backgroundColor={theme.codeBg}>
+    <Box flexDirection="column" paddingLeft={4}>
       <Box justifyContent="flex-end">
         <Text color={theme.textDim} dimColor>{block.lang}</Text>
       </Box>

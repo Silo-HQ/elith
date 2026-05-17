@@ -15,12 +15,10 @@ export const SplitPane: React.FC<SplitPaneProps> = ({
   children,
   orientation = 'vertical',
   sizes = [50, 50],
-  minSize = 20,
-  resizable = true,
   borderColor = 'gray',
 }) => {
   const [leftSize, rightSize] = sizes;
-  const [currentSizes, setCurrentSizes] = useState<[number, number]>([leftSize, rightSize]);
+  const [currentSizes] = useState<[number, number]>([leftSize, rightSize]);
 
   // For terminal UI, we'll use fixed sizes for now
   // In a real implementation, we'd handle resize events
@@ -87,7 +85,7 @@ export const CollapsibleSidebar: React.FC<{
   collapsed?: boolean;
   width?: number;
   onToggle?: () => void;
-}> = ({ children, collapsed = false, width = 25, onToggle }) => {
+}> = ({ children, collapsed = false, width = 25 }) => {
   if (collapsed) {
     return (
       <Box width={3} flexDirection="column" borderStyle="single" borderColor="gray">

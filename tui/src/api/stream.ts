@@ -22,13 +22,13 @@ export class StreamHandler {
         const data = JSON.parse(event.data) as StreamEvent;
         onEvent(data);
       } catch (error) {
-        console.error('Failed to parse SSE event:', error);
+        // Silently handle parse errors
         onError?.(error as Error);
       }
     };
 
-    this.eventSource.onerror = (error) => {
-      console.error('SSE connection error:', error);
+    this.eventSource.onerror = () => {
+      // Silently handle connection errors
       onError?.(new Error('SSE connection failed'));
       this.close();
     };

@@ -1,6 +1,6 @@
 // Fade in animation component
 import React, { useState, useEffect } from 'react';
-import { Box, type DOMElement } from 'ink';
+import { Box } from 'ink';
 
 interface FadeInProps {
   children: React.ReactNode;

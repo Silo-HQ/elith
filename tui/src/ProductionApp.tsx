@@ -1,24 +1,32 @@
-// Production Elith TUI - Full backend integration with enhanced UI
+// Production Elith TUI - Claude Code style interface
 import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
-import { EnhancedBanner } from './components/enhanced/EnhancedBanner.js';
-import { ThinkingSpinner, LoadingSpinner } from './components/animations/EnhancedSpinner.js';
-import { ProgressBar } from './components/ui/ProgressBar.js';
+import { Banner } from './components/Banner.js';
+import { ActivityIndicator, CookedIndicator } from './components/ActivityIndicator.js';
+import { CommandMenu } from './components/CommandMenu.js';
+import { FileApprovalPrompt } from './components/FileApprovalPrompt.js';
 import { ChatInput } from './components/ChatInput.js';
 import { MessagesPanel, type Message } from './components/MessagesPanel.js';
 import { StatusBar } from './components/StatusBar.js';
 import { useTheme } from './hooks/useTheme.js';
 import { api } from './api/client.js';
 import { createStreamConnection } from './api/stream.js';
-
 export const ProductionApp: React.FC = () => {
-  const { theme, currentThemeName, switchTheme, availableThemes } = useTheme();
+  const { currentThemeName, switchTheme, availableThemes } = useTheme();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [currentModel, setCurrentModel] = useState('lmstudio');
   const [backendStatus, setBackendStatus] = useState<'online' | 'offline' | 'checking'>('checking');
   const [workspace] = useState(process.cwd());
-  const [sessionId] = useState(() => Math.random().toString(36).substring(2, 10));
+  const [showCommandMenu, setShowCommandMenu] = useState(false);
+  const [commandFilter, setCommandFilter] = useState('');
+  const [pendingFileApproval, setPendingFileApproval] = useState<{
+    fileName: string;
+    lineCount: number;
+    preview: string[];
+  } | null>(null);
+  const [activityMessage, setActivityMessage] = useState<string>('');
+  const [completionTime, setCompletionTime] = useState<string>('');
 
   // Check backend status on mount
   useEffect(() => {
@@ -38,11 +46,25 @@ export const ProductionApp: React.FC = () => {
 
   // Handle user input
   const handleSubmit = async (input: string) => {
-    // Handle commands
+    // Show command menu when typing /
     if (input.startsWith('/')) {
-      handleCommand(input);
+      if (input.length === 1) {
+        setShowCommandMenu(true);
+        setCommandFilter('');
+        return;
+      }
+      setCommandFilter(input.substring(1));
+      setShowCommandMenu(true);
+      
+      // Execute command if complete
+      if (input.includes(' ') || input === '/help' || input === '/clear' || input === '/exit') {
+        setShowCommandMenu(false);
+        handleCommand(input);
+      }
       return;
     }
+    
+    setShowCommandMenu(false);
 
     // Add user message
     const userMessage: Message = {
@@ -66,6 +88,8 @@ export const ProductionApp: React.FC = () => {
     }
 
     setIsStreaming(true);
+    setActivityMessage('Manifesting...');
+    const startTime = Date.now();
 
     try {
       // Execute task
@@ -101,6 +125,9 @@ export const ProductionApp: React.FC = () => {
             });
           } else if (event.type === 'done') {
             setIsStreaming(false);
+            const duration = Math.floor((Date.now() - startTime) / 1000);
+            setCompletionTime(`${duration}s`);
+            setActivityMessage('');
             cleanup();
           } else if (event.type === 'error') {
             setIsStreaming(false);
@@ -228,85 +255,89 @@ export const ProductionApp: React.FC = () => {
 
   return (
     <Box flexDirection="column" height="100%">
-      {/* Enhanced Banner */}
+      {/* Claude Code style Banner */}
       <Box flexShrink={0}>
-        <EnhancedBanner compact={true} />
+        <Banner compact={true} />
       </Box>
 
-      {/* Backend Status Warning */}
+      {/* Backend Status Warning - full width red bar */}
       {backendStatus === 'offline' && (
         <Box
-          borderStyle="round"
-          borderColor={theme.colors.error}
+          width="100%"
           paddingX={2}
-          marginY={1}
+          paddingY={1}
+          borderStyle="single"
+          borderColor="red"
         >
-          <Text color={theme.colors.error} bold>⚠ Backend Offline</Text>
-          <Text color={theme.colors.textDim}> - Start backend: </Text>
-          <Text color={theme.colors.accent}>python -m uvicorn backend.main:app --reload --port 8000</Text>
+          <Text color="red" bold>⚠ Backend Offline</Text>
+          <Text color="gray"> - Start backend: </Text>
+          <Text color="cyan">python -m uvicorn backend.main:app --reload --port 8000</Text>
+        </Box>
+      )}
+
+      {/* Command Menu */}
+      {showCommandMenu && (
+        <Box flexShrink={0}>
+          <CommandMenu filter={commandFilter} />
+        </Box>
+      )}
+
+      {/* File Approval Prompt */}
+      {pendingFileApproval && (
+        <Box flexShrink={0}>
+          <FileApprovalPrompt
+            fileName={pendingFileApproval.fileName}
+            lineCount={pendingFileApproval.lineCount}
+            preview={pendingFileApproval.preview}
+            onApprove={() => setPendingFileApproval(null)}
+            onReject={() => setPendingFileApproval(null)}
+            onAllowAll={() => setPendingFileApproval(null)}
+          />
         </Box>
       )}
 
       {/* Messages Panel */}
       <Box flexGrow={1} flexShrink={1} minHeight={0}>
-        {messages.length === 0 ? (
-          <Box flexDirection="column" padding={2}>
-            <Text color={theme.colors.brand} bold>Welcome to Elith! 🚀</Text>
-            <Box marginTop={1}>
-              <Text color={theme.colors.textDim}>
-                Type your message or use commands:
-              </Text>
-            </Box>
-            <Box marginTop={1} flexDirection="column">
-              <Text color={theme.colors.accent}>  /help</Text>
-              <Text color={theme.colors.textDim}>     - Show available commands</Text>
-              <Text color={theme.colors.accent}>  /theme cyberpunk</Text>
-              <Text color={theme.colors.textDim}>     - Switch to cyberpunk theme</Text>
-              <Text color={theme.colors.accent}>  /model claude</Text>
-              <Text color={theme.colors.textDim}>     - Switch to Claude model</Text>
-            </Box>
-            <Box marginTop={2}>
-              <Text color={theme.colors.textDimmer}>
-                Press Ctrl+Shift+T to cycle themes · Press Ctrl+C to exit
-              </Text>
-            </Box>
-          </Box>
-        ) : (
-          <MessagesPanel messages={messages} />
-        )}
+        <MessagesPanel messages={messages} />
       </Box>
 
-      {/* Streaming Indicator */}
-      {isStreaming && (
+      {/* Activity Indicator */}
+      {isStreaming && activityMessage && (
         <Box paddingX={2} paddingY={1}>
-          <LoadingSpinner text="Streaming response..." />
+          <ActivityIndicator message={activityMessage} />
         </Box>
       )}
 
+      {/* Completion Indicator */}
+      {!isStreaming && completionTime && (
+        <Box paddingX={2} paddingY={1}>
+          <CookedIndicator duration={completionTime} />
+        </Box>
+      )}
+
+      {/* Input prompt area */}
+      <Box flexShrink={0} paddingX={2} paddingY={1}>
+        <Text color="yellow">› prompt</Text>
+      </Box>
+      
       {/* Chat Input */}
-      <Box flexShrink={0}>
+      <Box flexShrink={0} paddingX={2}>
         <ChatInput
           onSubmit={handleSubmit}
           placeholder="Type your message or /help for commands"
         />
       </Box>
 
-      {/* Status Bar */}
-      <Box flexShrink={0}>
-        <Box paddingX={2} paddingY={1} borderStyle="single" borderColor={theme.colors.border}>
-          <Text color={theme.colors.textDim}>Model: </Text>
-          <Text color={theme.colors.brand}>{currentModel}</Text>
-          <Text color={theme.colors.textDimmer}> · </Text>
-          <Text color={theme.colors.textDim}>Theme: </Text>
-          <Text color={theme.colors.accent}>{currentThemeName}</Text>
-          <Text color={theme.colors.textDimmer}> · </Text>
-          <Text color={theme.colors.textDim}>Backend: </Text>
-          <Text color={backendStatus === 'online' ? theme.colors.success : theme.colors.error}>
-            {backendStatus}
-          </Text>
-          <Text color={theme.colors.textDimmer}> · </Text>
-          <Text color={theme.colors.textDimmer}>Ctrl+C to exit</Text>
-        </Box>
+      {/* Status Bar - single line at bottom */}
+      <Box flexShrink={0} paddingX={2} paddingY={1}>
+        <StatusBar
+          model={currentModel}
+          backendStatus={backendStatus}
+          tokens={0}
+          quotaPercent={0}
+          ctxPercent={0}
+          workspace={workspace}
+        />
       </Box>
     </Box>
   );

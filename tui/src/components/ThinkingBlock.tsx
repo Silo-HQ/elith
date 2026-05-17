@@ -58,7 +58,7 @@ export const ThinkingBlock: React.FC<ThinkingBlockProps> = ({ block, focused }) 
         )}
       </Box>
       <Box paddingLeft={2} flexDirection="column">
-        <Text color={theme.borderLeft}>{glyphs.borderLeft}</Text>
+        <Text color={theme.textDim}>{glyphs.borderLeft}</Text>
         <Box paddingLeft={1}>
           <Text color={theme.thinking} italic>
             {block.body}

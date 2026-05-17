@@ -95,7 +95,6 @@ export function useKeyboardInput(options: UseInputOptions) {
     if (key.ctrl && input === 'n') {
       // New session - reset state
       dispatch({ type: 'CLEAR_TRANSCRIPT' });
-      dispatch({ type: 'UPDATE_STATS', payload: { sessionId: Math.random().toString(36).substring(2, 10) } });
       return;
     }
 

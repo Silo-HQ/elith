@@ -22,8 +22,6 @@ interface TabBarProps {
 export const TabBar: React.FC<TabBarProps> = ({
   tabs,
   activeTabId,
-  onTabSelect,
-  onTabClose,
   onNewTab,
   maxTabs = 10,
 }) => {

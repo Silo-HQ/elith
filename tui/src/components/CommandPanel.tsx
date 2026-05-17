@@ -1,25 +1,21 @@
-// Command panel - overlay for /, @, !, # triggers
+// Command panel - two-column filtered dropdown, Claude Code style
 
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
-import { useAppState, useAppDispatch } from '../store/appStore.js';
-import { theme, glyphs } from '../theme.js';
+import { useAppState } from '../store/appStore.js';
+import { theme } from '../theme.js';
 import type { CommandItem, FileItem } from '../types.js';
 import { readdirSync, statSync } from 'fs';
 import { join, relative } from 'path';
 
 const SLASH_COMMANDS: CommandItem[] = [
-  { id: 'help', icon: '?', name: '/help', description: 'List all commands and keybindings' },
-  { id: 'clear', icon: '✗', name: '/clear', description: 'Clear transcript history' },
+  { id: 'add-dir', icon: '📁', name: '/add-dir', description: 'Add a new working directory' },
+  { id: 'agents', icon: '🤖', name: '/agents', description: 'Manage agent configurations' },
+  { id: 'clear', icon: '✗', name: '/clear', description: 'Start a new session with empty context' },
   { id: 'model', icon: '◆', name: '/model', description: 'Show and switch active model' },
   { id: 'skills', icon: '⚡', name: '/skills', description: 'List loaded agent skills' },
-  { id: 'context', icon: '#', name: '/context', description: 'Show pinned @context files' },
-  { id: 'history', icon: '⟳', name: '/history', description: 'Browse past sessions' },
-  { id: 'auth', icon: '🔑', name: '/auth', description: 'Show backend connection status' },
-  { id: 'mode', icon: '⚙', name: '/mode', description: 'Toggle autonomous ↔ confirm mode' },
-  { id: 'scan', icon: '🔍', name: '/scan', description: 'Re-scan workspace files' },
-  { id: 'export', icon: '💾', name: '/export', description: 'Save session to markdown file' },
-  { id: 'exit', icon: '⏻', name: '/exit', description: 'Quit Elith' },
+  { id: 'export', icon: '💾', name: '/export', description: 'Export conversation to file' },
+  { id: 'exit', icon: '⏻', name: '/exit', description: 'Exit the CLI' },
 ];
 
 function scanLocalFiles(dir: string, depth = 0): FileItem[] {
@@ -43,7 +39,6 @@ function scanLocalFiles(dir: string, depth = 0): FileItem[] {
 
 export const CommandPanel: React.FC = () => {
   const state = useAppState();
-  const dispatch = useAppDispatch();
   const [files, setFiles] = useState<FileItem[]>([]);
 
   // Scan files locally for @ trigger
@@ -74,7 +69,7 @@ export const CommandPanel: React.FC = () => {
           }));
       case 'shell':
         return [
-          { id: 'shell', icon: '⚡', name: 'Shell passthrough', description: 'command runs directly' },
+          { id: 'shell', icon: '!', name: 'Shell passthrough', description: 'command runs directly' },
         ];
       case 'context':
         return files
@@ -92,32 +87,37 @@ export const CommandPanel: React.FC = () => {
   };
 
   const items = getItems();
-  const maxRows = 4;
+  const maxRows = 7;
   const visibleItems = items.slice(0, maxRows);
 
   return (
     <Box
       flexDirection="column"
-      borderStyle="single"
-      borderColor={theme.borderDim}
-      width="100%"
-      paddingX={1}
+      paddingX={2}
+      marginBottom={1}
     >
       {visibleItems.length === 0 ? (
-        <Text color={theme.textDim}>No matches found</Text>
+        <Box>
+          <Text color={theme.textDim}>No matches found</Text>
+        </Box>
       ) : (
         visibleItems.map((item, index) => {
           const isSelected = index === state.panelSelectedIndex;
           return (
-            <Box
-              key={item.id}
-              backgroundColor={isSelected ? theme.surfaceAlt : undefined}
-            >
-              <Text color={theme.accent}>{item.icon} </Text>
-              <Text color={isSelected ? theme.text : theme.textDim} bold={isSelected}>
-                {item.name}
-              </Text>
-              <Text color={theme.textDim}> · {item.description}</Text>
+            <Box key={item.id}>
+              {/* Left column - command name (20 chars) */}
+              <Box width={20}>
+                <Text color={isSelected ? theme.brand : theme.accent} bold={isSelected}>
+                  {item.name}
+                </Text>
+              </Box>
+              
+              {/* Right column - description */}
+              <Box flexGrow={1}>
+                <Text color={isSelected ? theme.text : theme.textDim}>
+                  {item.description}
+                </Text>
+              </Box>
             </Box>
           );
         })

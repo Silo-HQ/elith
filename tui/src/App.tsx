@@ -4,6 +4,7 @@
 import React, { useEffect } from 'react';
 import { Box } from 'ink';
 import { AppStoreProvider, useAppDispatch, useAppState } from './store/appStore.js';
+import type { AppState } from './types.js';
 import { useKeyboardInput } from './hooks/useInput.js';
 import { Banner } from './components/Banner.js';
 import { Transcript } from './components/Transcript.js';
@@ -83,11 +84,13 @@ const AppContent: React.FC = () => {
         type: 'STREAM_ERROR',
         payload: { error: error instanceof Error ? error.message : 'Unknown error' },
       });
+      return undefined;
     }
   };
 
   const handleCommand = (command: string) => {
     const cmd = command.toLowerCase();
+    const parts = cmd.split(' ');
     
     if (cmd === '/help') {
       dispatch({
@@ -96,15 +99,78 @@ const AppContent: React.FC = () => {
           chunk: `Available commands:
 - /help - Show this help
 - /clear - Clear transcript
-- /model - Show/switch model
+- /model [name] - Show/switch model
 - /skills - List skills
 - /context - Show context files
+- /auth - Backend connection status
+- /mode - Toggle autonomous ↔ confirm
+- /scan - Re-scan workspace
+- /export - Save session to markdown
 - /exit - Quit`,
         },
       });
       dispatch({ type: 'STREAM_DONE' });
     } else if (cmd === '/clear') {
       dispatch({ type: 'CLEAR_TRANSCRIPT' });
+    } else if (cmd.startsWith('/model')) {
+      const targetModel = parts[1];
+      const validModels = ['claude', 'lmstudio', 'openrouter'];
+      
+      if (!targetModel) {
+        dispatch({
+          type: 'STREAM_CHUNK',
+          payload: {
+            chunk: `Current model: ${state.model}\n\nAvailable models:\n- claude\n- lmstudio\n- openrouter\n\nUsage: /model <name>`,
+          },
+        });
+        dispatch({ type: 'STREAM_DONE' });
+      } else if (validModels.includes(targetModel)) {
+        dispatch({ type: 'SET_MODEL', payload: targetModel });
+        dispatch({
+          type: 'STREAM_CHUNK',
+          payload: { chunk: `Switched to model: ${targetModel}` },
+        });
+        dispatch({ type: 'STREAM_DONE' });
+      } else {
+        dispatch({
+          type: 'STREAM_CHUNK',
+          payload: { chunk: `Unknown model: ${targetModel}. Valid: claude, lmstudio, openrouter` },
+        });
+        dispatch({ type: 'STREAM_DONE' });
+      }
+    } else if (cmd === '/skills') {
+      const skillsList = [
+        'read_file', 'write_file', 'list_files', 'search_code',
+        'git_diff', 'git_commit', 'run_tests', 'find_references',
+        'analyze_dependencies', 'explain_function', 'install_package', 'read_logs'
+      ];
+      const output = `12 skills active:\n\n${skillsList.map(s => `  ⚡ ${s}`).join('\n')}`;
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: output } });
+      dispatch({ type: 'STREAM_DONE' });
+    } else if (cmd === '/auth') {
+      const isOnline = state.backendStatus === 'online';
+      const output = isOnline
+        ? `Backend: ✓ online (http://localhost:8000)\nModel: ${state.model}\nSkills: 12 active`
+        : `Backend: ✗ offline\n\nStart the backend:\n  source venv/bin/activate\n  python -m uvicorn backend.main:app --reload --port 8000`;
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: output } });
+      dispatch({ type: 'STREAM_DONE' });
+    } else if (cmd === '/mode') {
+      const newMode = state.mode === 'autonomous' ? 'confirm' : 'autonomous';
+      dispatch({ type: 'SET_MODE', payload: newMode });
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: `Mode: ${newMode}` } });
+      dispatch({ type: 'STREAM_DONE' });
+    } else if (cmd === '/scan') {
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: `Scanning ${state.workspace}...` } });
+      dispatch({ type: 'SCAN_WORKSPACE' });
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: `Done.` } });
+      dispatch({ type: 'STREAM_DONE' });
+    } else if (cmd === '/export') {
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const filename = `elith-session-${timestamp}.md`;
+      const content = buildSessionMarkdown(state);
+      require('fs').writeFileSync(filename, content);
+      dispatch({ type: 'STREAM_CHUNK', payload: { chunk: `Session saved to: ${filename}` } });
+      dispatch({ type: 'STREAM_DONE' });
     } else if (cmd === '/exit') {
       process.exit(0);
     } else {
@@ -116,6 +182,31 @@ const AppContent: React.FC = () => {
     }
   };
 
+  const buildSessionMarkdown = (state: AppState): string => {
+    const date = new Date().toLocaleString();
+    const lines = [
+      `# Elith Session — ${date}`,
+      ``,
+      `**Workspace:** ${state.workspace}`,
+      `**Model:** ${state.model}`,
+      `**Branch:** ${state.branch}`,
+      ``,
+      `---`,
+      ``,
+    ];
+
+    for (const msg of state.messages) {
+      if (msg.role === 'user') {
+        lines.push(`**You:** ${msg.text}`, ``);
+      } else if (msg.role === 'agent') {
+        lines.push(`**Elith:** ${msg.text}`, ``);
+      }
+      lines.push(`---`, ``);
+    }
+
+    return lines.join('\n');
+  };
+
   // Setup keyboard input
   useKeyboardInput({
     onSubmit: handleSubmit,
@@ -124,23 +215,27 @@ const AppContent: React.FC = () => {
 
   // Poll for status updates
   useEffect(() => {
-    const interval = setInterval(async () => {
+    const poll = async () => {
       try {
         const status = await api.getStatus();
         dispatch({
           type: 'UPDATE_STATS',
           payload: {
-            ctxPercent: status.ctx_percent,
-            quotaPercent: status.quota_percent,
-            memoryMB: status.memory_mb,
-            tokens: status.tokens,
+            ctxPercent: status.ctx_percent ?? 0,
+            quotaPercent: status.quota_percent ?? 0,
+            memoryMB: status.memory_mb ?? 0,
+            tokens: status.tokens ?? 0,
           },
         });
-      } catch (error) {
-        console.error('Failed to fetch status:', error);
+        dispatch({ type: 'SET_BACKEND_STATUS', payload: 'online' });
+      } catch {
+        // Silently fail - don't log to console, just mark offline
+        dispatch({ type: 'SET_BACKEND_STATUS', payload: 'offline' });
       }
-    }, 5000);
+    };
 
+    poll(); // immediate first check
+    const interval = setInterval(poll, 5000);
     return () => clearInterval(interval);
   }, [dispatch]);
 

@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from .routes import scan, execute, stream, models, results, tasks, chat, create_project
 from .utils.logger import logger
 import time
+import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -47,6 +48,21 @@ async def root():
     }
 
 
+@app.get("/api/status")
+async def api_status():
+    """Get backend status and metrics"""
+    return {
+        "status": "online",
+        "version": "0.1.0",
+        "model": os.getenv("DEFAULT_MODEL", "lmstudio"),
+        "skills": 12,
+        "ctx_percent": 0,
+        "quota_percent": 0,
+        "memory_mb": 0,
+        "tokens": 0
+    }
+
+
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
     """Log all requests and add timing."""
@@ -83,5 +99,20 @@ async def health():
     """Health check endpoint."""
     logger.debug("Health check requested")
     return {"status": "healthy", "service": "elith-backend"}
+
+
+@app.get("/api/status")
+async def api_status():
+    """Status endpoint for TUI polling."""
+    return {
+        "status": "online",
+        "version": "0.1.0",
+        "model": os.getenv("DEFAULT_MODEL", "lmstudio"),
+        "skills": 12,
+        "ctx_percent": 0,
+        "quota_percent": 0,
+        "memory_mb": 0,
+        "tokens": 0
+    }
 
 # Made with Bob

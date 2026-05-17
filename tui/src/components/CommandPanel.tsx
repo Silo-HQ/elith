@@ -4,8 +4,9 @@ import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
 import { useAppState, useAppDispatch } from '../store/appStore.js';
 import { theme, glyphs } from '../theme.js';
-import { api } from '../api/client.js';
 import type { CommandItem, FileItem } from '../types.js';
+import { readdirSync, statSync } from 'fs';
+import { join, relative } from 'path';
 
 const SLASH_COMMANDS: CommandItem[] = [
   { id: 'help', icon: '?', name: '/help', description: 'List all commands and keybindings' },
@@ -16,20 +17,44 @@ const SLASH_COMMANDS: CommandItem[] = [
   { id: 'history', icon: '⟳', name: '/history', description: 'Browse past sessions' },
   { id: 'auth', icon: '🔑', name: '/auth', description: 'Show backend connection status' },
   { id: 'mode', icon: '⚙', name: '/mode', description: 'Toggle autonomous ↔ confirm mode' },
+  { id: 'scan', icon: '🔍', name: '/scan', description: 'Re-scan workspace files' },
+  { id: 'export', icon: '💾', name: '/export', description: 'Save session to markdown file' },
   { id: 'exit', icon: '⏻', name: '/exit', description: 'Quit Elith' },
 ];
+
+function scanLocalFiles(dir: string, depth = 0): FileItem[] {
+  if (depth > 3) return [];
+  const SKIP = new Set(['.git', 'node_modules', '__pycache__', 'venv', '.venv', 'dist', 'build']);
+  try {
+    return readdirSync(dir).flatMap(name => {
+      if (SKIP.has(name)) return [];
+      const full = join(dir, name);
+      try {
+        const stat = statSync(full);
+        const path = relative(process.cwd(), full);
+        if (stat.isDirectory()) {
+          return [{ path, type: 'directory' as const }, ...scanLocalFiles(full, depth + 1)];
+        }
+        return [{ path, type: 'file' as const }];
+      } catch {
+        return [];
+      }
+    });
+  } catch {
+    return [];
+  }
+}
 
 export const CommandPanel: React.FC = () => {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const [files, setFiles] = useState<FileItem[]>([]);
 
-  // Fetch files for @ trigger
+  // Scan local files for @ trigger
   useEffect(() => {
-    if (state.triggerMode === 'file') {
-      api.scanWorkspace(state.workspace)
-        .then(setFiles)
-        .catch(console.error);
+    if (state.triggerMode === 'file' || state.triggerMode === 'context') {
+      const scannedFiles = scanLocalFiles(state.workspace);
+      setFiles(scannedFiles);
     }
   }, [state.triggerMode, state.workspace]);
 
@@ -88,15 +113,14 @@ export const CommandPanel: React.FC = () => {
         visibleItems.map((item, index) => {
           const isSelected = index === state.panelSelectedIndex;
           return (
-            <Box
-              key={item.id}
-              backgroundColor={isSelected ? theme.surfaceAlt : undefined}
-            >
-              <Text color={theme.accent}>{item.icon} </Text>
-              <Text color={isSelected ? theme.text : theme.textDim} bold={isSelected}>
-                {item.name}
+            <Box key={item.id}>
+              <Text backgroundColor={isSelected ? theme.surfaceAlt : undefined}>
+                <Text color={theme.accent}>{item.icon} </Text>
+                <Text color={isSelected ? theme.text : theme.textDim} bold={isSelected}>
+                  {item.name}
+                </Text>
+                <Text color={theme.textDim}> · {item.description}</Text>
               </Text>
-              <Text color={theme.textDim}> · {item.description}</Text>
             </Box>
           );
         })

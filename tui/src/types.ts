@@ -75,6 +75,7 @@ export interface AppState {
   panelSelectedIndex: number;
   focusedExpandableId: string | null;
   mode: 'autonomous' | 'confirm';
+  backendStatus: 'online' | 'offline' | 'unknown';
 }
 
 export type AppAction =
@@ -93,7 +94,10 @@ export type AppAction =
   | { type: 'AWAITING_APPROVAL' }
   | { type: 'APPROVAL_RESULT'; payload: { approved: boolean } }
   | { type: 'CLEAR_TRANSCRIPT' }
-  | { type: 'SET_MODEL'; payload: { model: string } }
+  | { type: 'SET_MODEL'; payload: string }
+  | { type: 'SET_MODE'; payload: 'autonomous' | 'confirm' }
+  | { type: 'SET_BACKEND_STATUS'; payload: 'online' | 'offline' | 'unknown' }
+  | { type: 'SCAN_WORKSPACE' }
   | { type: 'SET_AUTO_SCROLL'; payload: { autoScroll: boolean } }
   | { type: 'SET_TRIGGER'; payload: { mode: TriggerMode; query: string } }
   | { type: 'CLOSE_TRIGGER' }

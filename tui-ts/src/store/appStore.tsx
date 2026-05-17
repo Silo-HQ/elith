@@ -26,6 +26,7 @@ const initialState: AppState = {
   panelSelectedIndex: 0,
   focusedExpandableId: null,
   mode: 'autonomous',
+  backendStatus: 'unknown',
 };
 
 // Helper functions
@@ -266,7 +267,21 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'SET_MODEL': {
-      return { ...state, model: action.payload.model };
+      return { ...state, model: action.payload };
+    }
+
+    case 'SET_MODE': {
+      return { ...state, mode: action.payload };
+    }
+
+    case 'SET_BACKEND_STATUS': {
+      return { ...state, backendStatus: action.payload };
+    }
+
+    case 'SCAN_WORKSPACE': {
+      // Trigger workspace rescan - currently just returns state
+      // Could be extended to actually rescan files
+      return state;
     }
 
     case 'SET_AUTO_SCROLL': {

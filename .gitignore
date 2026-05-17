@@ -1,15 +1,50 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
 *.pyo
-.env
+*.pyd
+.Python
 venv/
 .venv/
-node_modules/
-.DS_Store
-*.log
-sessions/
-tmp/
+env/
+*.egg-info/
 dist/
 build/
-.next/
-.vite/
+*.egg
+
+# Node
+node_modules/
+npm-debug.log*
+.npm
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Internal docs (team-only, not for public repo)
+docs/_internals/
+
+# Temp / generated
+test_output.txt
+*.diff
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Build
+*.pyc
+.cache/
+coverage/
+.nyc_output/
+
+# Made with Bob

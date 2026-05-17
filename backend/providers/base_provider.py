@@ -45,6 +45,18 @@ class BaseProvider(ABC):
         """
         pass
     
+    def is_configured(self) -> bool:
+        """
+        Check if provider is properly configured and ready to use.
+        
+        Override this method in subclasses to check for API keys,
+        connectivity, or other requirements.
+        
+        Returns:
+            True if provider is ready, False otherwise
+        """
+        return True  # Default: assume configured
+    
     def execute_skill(self, skill_name: str, **kwargs) -> str:
         """
         Execute a skill by name with given parameters.

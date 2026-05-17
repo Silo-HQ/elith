@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 from ..session.manager import manager
 from ..session.logger import logger
+from ..session.history import history
 from ..models.session import SessionStatus
 from ..context_engine.repo_scanner import RepoScanner
 from ..context_engine.vault_reader import VaultReader
@@ -118,13 +119,14 @@ async def run_operation(session_id: str, request: ExecuteRequest):
         for chunk in model_router.route(request.model, request.repo_path, prompt, context_data['context']):
             await manager.add_output(session_id, chunk)
         
-        # 6. Mark complete and log
+        # 6. Mark complete, log, and save to history
         manager.update_status(session_id, SessionStatus.COMPLETED)
         session = manager.get_session(session_id)
         if session:
             session.completed_at = datetime.utcnow()
             report_path = logger.log_session(session)
             session.report_path = report_path
+            history.add_session(session)  # Save to history
             await manager.add_output(session_id, f"\n\nSession report: {report_path}\n")
             
     except Exception as e:

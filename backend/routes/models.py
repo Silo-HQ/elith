@@ -14,8 +14,9 @@ async def get_models() -> Dict[str, List[str]]:
     Returns which AI providers are available for use.
     """
     # Get actual configured models from router
-    available = model_router.get_available_models()
-    configured = model_router.get_configured_models()
+    # Use current directory as default repo path for model discovery
+    available = model_router.get_available_models(".")
+    configured = model_router.get_configured_models(".")
     
     return {
         "available": available,

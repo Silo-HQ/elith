@@ -14,7 +14,7 @@ class LMStudioProvider(BaseProvider):
     Default endpoint: http://localhost:1234/v1
     """
     
-    def __init__(self, repo_path: str, base_url: str = "http://localhost:1234/v1", model: str = None):
+    def __init__(self, repo_path: str, base_url: str = "http://localhost:1234/v1", model: str | None = None, api_key: str | None = None):
         """
         Initialize LM Studio provider.
         
@@ -22,10 +22,25 @@ class LMStudioProvider(BaseProvider):
             repo_path: Repository root path
             base_url: LM Studio API endpoint (default: http://localhost:1234/v1)
             model: Model name (optional, LM Studio auto-selects if None)
+            api_key: API key (optional, LM Studio doesn't require it)
         """
         super().__init__(repo_path, ALL_SKILLS)
         self.base_url = base_url.rstrip('/')
         self.model = model or "local-model"  # LM Studio uses loaded model
+        self.api_key = api_key  # Store but don't use (for compatibility)
+    
+    def is_configured(self) -> bool:
+        """
+        Check if LM Studio is accessible.
+        
+        Returns:
+            True if LM Studio server is reachable
+        """
+        try:
+            response = requests.get(f"{self.base_url}/models", timeout=2)
+            return response.status_code == 200
+        except:
+            return False
     
     def run(self, prompt: str, context: str = "") -> Generator[str, None, None]:
         """

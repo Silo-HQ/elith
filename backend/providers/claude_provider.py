@@ -1,4 +1,5 @@
 # backend/providers/claude_provider.py
+# Force reload
 
 import anthropic
 import json
@@ -26,6 +27,16 @@ class ClaudeProvider(BaseProvider):
         super().__init__(repo_path, ALL_SKILLS)
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
+        self.api_key = api_key
+    
+    def is_configured(self) -> bool:
+        """
+        Check if Claude provider is configured with valid API key.
+        
+        Returns:
+            True if API key is present
+        """
+        return bool(self.api_key)
     
     def run(self, prompt: str, context: str = "") -> Generator[str, None, None]:
         """

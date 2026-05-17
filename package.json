@@ -1,0 +1,52 @@
+{
+  "name": "@elith/cli",
+  "version": "0.1.0",
+  "description": "Universal repo-aware AI agent framework",
+  "main": "index.js",
+  "bin": {
+    "elith": "./bin/elith.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/postinstall.js",
+    "preuninstall": "node scripts/preuninstall.js"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "coding",
+    "assistant",
+    "claude",
+    "gpt",
+    "gemini",
+    "lmstudio",
+    "repo-aware",
+    "code-analysis"
+  ],
+  "author": "Elith Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Silo-HQ/elith.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Silo-HQ/elith/issues"
+  },
+  "homepage": "https://github.com/Silo-HQ/elith#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "preferGlobal": true,
+  "files": [
+    "bin/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ]
+}

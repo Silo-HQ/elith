@@ -29,7 +29,7 @@ class ModelRouter:
         
         provider = providers[model]
         
-        if not provider.is_configured():
+        if hasattr(provider, 'is_configured') and not provider.is_configured():
             yield f"Error: Model '{model}' is not properly configured\n"
             return
         
@@ -44,10 +44,8 @@ class ModelRouter:
     def get_configured_models(self, repo_path: str = ".") -> list:
         """Get list of properly configured models."""
         providers = initialize_providers(repo_path)
-        return [
-            name for name, provider in providers.items()
-            if provider.is_configured()
-        ]
+        # Return all initialized providers - configuration check happens at runtime
+        return list(providers.keys())
 
 
 # Global router instance

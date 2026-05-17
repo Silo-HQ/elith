@@ -20,10 +20,127 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 
 ✅ **Universal Model Support**: Works with Claude, Gemini, GPT, LMStudio, and any OpenAI-compatible API  
 ✅ **Smart Context Engine**: Loads only 4-6 relevant files from 100+ (90%+ token reduction)  
-✅ **Obsidian Integration**: Project memory without vector DB overhead  
-✅ **Novel Architecture Generator**: Repo-specific proposals, not generic textbook answers  
-✅ **Dual Interface**: Terminal UI (Textual) + Web Dashboard (React)  
+✅ **Obsidian Integration**: Project memory without vector DB overhead
+✅ **Novel Architecture Generator**: Repo-specific proposals, not generic textbook answers
+✅ **Dual Interface**: Terminal UI (TypeScript/Ink) + Web Dashboard (React)
 ✅ **Real-time Streaming**: SSE for live output in both interfaces
+
+## Installation
+
+Choose your preferred installation method:
+
+### Method 1: Curl Install (Fastest) ⚡
+
+```bash
+curl -fsSL https://elith.silohq.tech/install.sh | sh
+```
+
+### Method 2: npm/pnpm/bun (Node.js Users) 📦
+
+```bash
+# npm
+npm install -g @elith/cli
+
+# pnpm
+pnpm add -g @elith/cli
+
+# bun
+bun add -g @elith/cli
+```
+
+### Method 3: Homebrew (macOS/Linux) 🍺
+
+```bash
+brew install elith
+```
+
+### Method 4: Local Install Script
+
+```bash
+cd elith
+./install-elith.sh
+```
+
+### Method 5: Direct pip Install (Development)
+
+```bash
+cd elith
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
+```
+
+See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.
+
+## Updating Elith
+
+### Production Updates
+
+```bash
+# Homebrew
+brew upgrade elith
+
+# npm/pnpm/bun
+npm update -g @elith/cli
+# or
+pnpm update -g @elith/cli
+# or
+bun update -g @elith/cli
+
+# Curl installer (re-run)
+curl -fsSL https://elith.silohq.tech/install.sh | sh
+```
+
+### Local Development Updates
+
+If you're developing Elith locally:
+
+```bash
+# Quick sync to installed version
+./sync-local-to-install.sh
+
+# Or manual update
+cd /Volumes/DataVault/Projects/elith
+git pull origin dev
+source .venv/bin/activate
+pip install -e . --upgrade
+```
+
+See [docs/LOCAL_DEVELOPMENT_UPDATES.md](docs/LOCAL_DEVELOPMENT_UPDATES.md) for detailed local development workflow.
+
+### CLI Usage
+
+After installation, configure your AI provider:
+```bash
+elith init  # Interactive setup wizard
+```
+
+**Interactive Mode (REPL):**
+```bash
+elith
+# or
+elith chat
+```
+
+**One-Shot Commands:**
+```bash
+elith "explain this repository"
+elith explain backend/
+elith refactor src/main.py --focus "readability"
+elith test-gen backend/auth.py
+elith architect --problem "add websocket support"
+elith scan
+elith models
+```
+
+**Slash Commands (in REPL):**
+- `/model <provider>` - Switch AI provider
+- `/scan` - Re-scan repository
+- `/files` - List loaded files
+- `/skills` - List available skills
+- `/clear` - Clear conversation history
+- `/export` - Save session to markdown
+- `/help` - Show help
 
 ## Quick Start
 
@@ -35,7 +152,7 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/elith.git
+git clone https://github.com/Silo-HQ/elith.git
 cd elith
 
 # Run automated setup
@@ -74,8 +191,14 @@ Backend runs at: `http://localhost:8000`
 
 ```bash
 # In a new terminal
-source venv/bin/activate
-python -m tui.app
+./run_tui.sh
+```
+
+Or manually:
+```bash
+cd tui
+npm install  # First time only
+npm run dev
 ```
 
 ### 5. Run Web Dashboard (Optional)
@@ -93,11 +216,11 @@ Frontend runs at: `http://localhost:5173`
 
 ### Terminal UI (TUI)
 
-1. Launch TUI: `python -m tui.app`
-2. Select workspace directory
-3. Choose operation: Explain, Architect, Test Gen, or Refactor
-4. Select AI model (only configured models shown)
-5. Watch real-time output with context preview
+1. Launch TUI: `./run_tui.sh`
+2. The TUI connects to the backend at `http://localhost:8000`
+3. Use commands like `/help`, `/models`, `/model <name>` to interact
+4. Type your questions or requests naturally
+5. Watch real-time streaming responses
 
 ### Web Dashboard
 
@@ -268,10 +391,10 @@ MIT License - See LICENSE file for details
 
 ## Submission
 
-**IBM Bob Hackathon 2026**  
-**Category**: Best Use of IBM Bob  
-**GitHub**: https://github.com/yourusername/elith  
-**Demo**: https://elith.vercel.app
+**IBM Bob Hackathon 2026**
+**Category**: Best Use of IBM Bob
+**GitHub**: https://github.com/Silo-HQ/elith
+**Website**: https://elith.silohq.tech
 
 ---
 

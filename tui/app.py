@@ -27,6 +27,7 @@ from textual.worker import Worker, WorkerState
 from .theme import get_theme
 from .components.chat_input import ChatInput
 from .components.messages_panel import MessagesPanel
+from .components.banner import Banner
 
 
 # Backend API configuration
@@ -131,12 +132,15 @@ Footer {
     
     def on_mount(self) -> None:
         """Initialize the app"""
-        # Add welcome message
+        # Add welcome message with banner
         try:
             messages = self.query_one("#messages", MessagesPanel)
+            
+            # Add ASCII art banner
+            from .components.banner import BANNER_ART
             messages.add_message(
                 "system",
-                "Welcome to Elith! Type your prompt or use /commands to get started.\n\nBackend: http://localhost:8000",
+                BANNER_ART + "\n\nWelcome to Elith! Type your prompt or use /commands to get started.\n\nBackend: http://localhost:8000",
                 "elith",
                 datetime.now().strftime("%H:%M")
             )

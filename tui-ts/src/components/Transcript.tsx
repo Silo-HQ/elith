@@ -8,21 +8,14 @@ import { theme } from '../theme.js';
 
 export const Transcript: React.FC = () => {
   const state = useAppState();
-  const rows = process.stdout.rows || 24;
-  
-  // Calculate fixed height: total rows - banner(6) - input(3) - commandPanel(0-4) - statusBar(1)
-  const bannerHeight = 6;
-  const inputHeight = 3;
-  const statusBarHeight = 1;
-  const commandPanelHeight = state.triggerMode ? 4 : 0;
-  const transcriptHeight = rows - bannerHeight - inputHeight - commandPanelHeight - statusBarHeight;
 
   return (
     <Box
       flexDirection="column"
-      height={transcriptHeight}
+      flexGrow={1}
       paddingX={1}
       paddingY={1}
+      overflow="hidden"
     >
       {state.messages.length === 0 ? (
         <Text color={theme.textDim}>No messages yet. Start typing to begin...</Text>

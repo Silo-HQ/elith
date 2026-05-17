@@ -1,14 +1,13 @@
 #!/usr/bin/env node
+// Production Elith TUI - Full backend integration with enhanced UI
 
 import React from 'react';
 import { render } from 'ink';
-import { App } from './App.js';
+import { ProductionApp } from './ProductionApp.js';
 
-// Clear terminal before rendering
+// Clear terminal and render
 process.stdout.write('\x1Bc');
-
-// Render the app
-const { unmount, waitUntilExit } = render(<App />);
+const { unmount, waitUntilExit } = render(<ProductionApp />);
 
 // Handle cleanup
 process.on('SIGINT', () => {
@@ -21,9 +20,6 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-// Wait for exit
 waitUntilExit().then(() => {
   process.exit(0);
 });
-
-// Made with Bob

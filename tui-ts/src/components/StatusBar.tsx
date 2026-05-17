@@ -1,13 +1,25 @@
 // Status bar - fixed at bottom, single line, always visible
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { useAppState } from '../store/appStore.js';
 import { theme, glyphs } from '../theme.js';
 
 export const StatusBar = React.memo(() => {
   const state = useAppState();
-  const cols = process.stdout.columns || 80;
+  const [cols, setCols] = useState(process.stdout.columns || 80);
+
+  // Handle terminal resize
+  useEffect(() => {
+    const handleResize = () => {
+      setCols(process.stdout.columns || 80);
+    };
+
+    process.stdout.on('resize', handleResize);
+    return () => {
+      process.stdout.off('resize', handleResize);
+    };
+  }, []);
 
   // Format numbers
   const formatTokens = (tokens: number): string => {
@@ -103,7 +115,7 @@ export const StatusBar = React.memo(() => {
   };
 
   return (
-    <Box paddingTop={1} width="100%">
+    <Box width="100%" flexShrink={0}>
       {getStatusContent()}
     </Box>
   );

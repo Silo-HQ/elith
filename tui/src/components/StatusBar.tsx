@@ -22,7 +22,10 @@ export const StatusBar = React.memo(() => {
   }, []);
 
   // Format numbers
-  const formatTokens = (tokens: number): string => {
+  const formatTokens = (tokens: number | undefined): string => {
+    if (!tokens && tokens !== 0) {
+      return '0';
+    }
     if (tokens >= 1000) {
       return `${(tokens / 1000).toFixed(1)}k`;
     }

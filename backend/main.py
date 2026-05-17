@@ -50,7 +50,7 @@ async def root():
 
 @app.get("/api/status")
 async def api_status():
-    """Get backend status and metrics"""
+    """API status endpoint for TUI polling."""
     return {
         "status": "online",
         "version": "0.1.0",
@@ -99,20 +99,5 @@ async def health():
     """Health check endpoint."""
     logger.debug("Health check requested")
     return {"status": "healthy", "service": "elith-backend"}
-
-
-@app.get("/api/status")
-async def api_status():
-    """Status endpoint for TUI polling."""
-    return {
-        "status": "online",
-        "version": "0.1.0",
-        "model": os.getenv("DEFAULT_MODEL", "lmstudio"),
-        "skills": 12,
-        "ctx_percent": 0,
-        "quota_percent": 0,
-        "memory_mb": 0,
-        "tokens": 0
-    }
 
 # Made with Bob

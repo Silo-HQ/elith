@@ -25,6 +25,87 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 ✅ **Dual Interface**: Terminal UI (TypeScript/Ink) + Web Dashboard (React)
 ✅ **Real-time Streaming**: SSE for live output in both interfaces
 
+## Installation
+
+Choose your preferred installation method:
+
+### Method 1: Curl Install (Fastest) ⚡
+
+```bash
+curl -fsSL https://elith.silohq.tech/install.sh | sh
+```
+
+### Method 2: npm/pnpm/bun (Node.js Users) 📦
+
+```bash
+# npm
+npm install -g @elith/cli
+
+# pnpm
+pnpm add -g @elith/cli
+
+# bun
+bun add -g @elith/cli
+```
+
+### Method 3: Homebrew (macOS/Linux) 🍺
+
+```bash
+brew install elith
+```
+
+### Method 4: Local Install Script
+
+```bash
+cd elith
+./install-elith.sh
+```
+
+### Method 5: Direct pip Install (Development)
+
+```bash
+cd elith
+python3 -m venv venv
+source venv/bin/activate
+pip install -e .
+```
+
+See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.
+
+### CLI Usage
+
+After installation, configure your AI provider:
+```bash
+elith init  # Interactive setup wizard
+```
+
+**Interactive Mode (REPL):**
+```bash
+elith
+# or
+elith chat
+```
+
+**One-Shot Commands:**
+```bash
+elith "explain this repository"
+elith explain backend/
+elith refactor src/main.py --focus "readability"
+elith test-gen backend/auth.py
+elith architect --problem "add websocket support"
+elith scan
+elith models
+```
+
+**Slash Commands (in REPL):**
+- `/model <provider>` - Switch AI provider
+- `/scan` - Re-scan repository
+- `/files` - List loaded files
+- `/skills` - List available skills
+- `/clear` - Clear conversation history
+- `/export` - Save session to markdown
+- `/help` - Show help
+
 ## Quick Start
 
 ### Prerequisites
@@ -35,7 +116,7 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 ### 1. Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/elith.git
+git clone https://github.com/Silo-HQ/elith.git
 cd elith
 
 # Run automated setup
@@ -274,10 +355,10 @@ MIT License - See LICENSE file for details
 
 ## Submission
 
-**IBM Bob Hackathon 2026**  
-**Category**: Best Use of IBM Bob  
-**GitHub**: https://github.com/yourusername/elith  
-**Demo**: https://elith.vercel.app
+**IBM Bob Hackathon 2026**
+**Category**: Best Use of IBM Bob
+**GitHub**: https://github.com/Silo-HQ/elith
+**Website**: https://elith.silohq.tech
 
 ---
 

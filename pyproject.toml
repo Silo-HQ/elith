@@ -12,7 +12,18 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "textual>=0.47.0",
     "pyfiglet>=1.0.2",
+    "rich>=13.0.0",
+    "anthropic>=0.18.0",
+    "openai>=1.0.0",
+    "requests>=2.31.0",
 ]
+
+[project.scripts]
+elith = "cli:main"
+
+[tool.setuptools]
+packages = ["backend", "backend.context_engine", "backend.models", "backend.providers", "backend.routes", "backend.router", "backend.session", "backend.skills", "backend.utils"]
+py-modules = ["cli"]
 
 [build-system]
 requires = ["setuptools>=68.0"]

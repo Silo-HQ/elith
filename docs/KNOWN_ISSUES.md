@@ -2,120 +2,56 @@
 
 ## Backend API Issues
 
-### 1. Missing SSE Stream Endpoint (404 Error)
+### 1. ~~Missing SSE Stream Endpoint~~ ✅ RESOLVED
 
-**Issue:**
-```
-SSE connection error: Event { type: 'error', status: 404, message: 'Not Found' }
-GET /api/sessions/{session_id}/stream - 404 Not Found
-```
+**Status:** ✅ **RESOLVED** - SSE endpoint exists at `/api/stream/{session_id}`
 
-**Root Cause:**
-The backend API is missing the `/api/sessions/{session_id}/stream` endpoint that the TUI expects for real-time streaming responses.
-
-**Backend Logs:**
+The SSE streaming endpoint has been implemented in [`backend/routes/stream.py`](../backend/routes/stream.py:10). The endpoint is available at:
 ```
-2026-05-17 16:00:45 - elith - INFO - Request: GET /api/sessions/f63ae509-dd24-4871-bfaa-8bff2341ca53/stream
-2026-05-17 16:00:45 - elith - INFO - Response: 404 (0.001s)
-INFO:     127.0.0.1:58952 - "GET /api/sessions/f63ae509-dd24-4871-bfaa-8bff2341ca53/stream HTTP/1.1" 404 Not Found
+GET /api/stream/{session_id}
 ```
 
-**Impact:**
-- TUI can send messages to backend ✅
-- Backend processes requests ✅
-- Real-time streaming doesn't work ❌
-- Messages appear empty in TUI ❌
+**Note:** If TUI is looking for `/api/sessions/{session_id}/stream`, update the TUI to use the correct endpoint path.
 
-**Workaround:**
-The TUI will need to use polling or the backend needs to implement the SSE endpoint.
+---
 
-**Required Backend Implementation:**
+### 2. ~~LMStudio Provider Initialization Error~~ ✅ RESOLVED
+
+**Status:** ✅ **RESOLVED** - LMStudio provider fixed
+
+The LMStudio provider has been corrected in [`backend/providers/lmstudio_provider.py`](../backend/providers/lmstudio_provider.py:17). It now accepts the correct parameters:
 ```python
-# backend/routes/stream.py (needs to be created)
-from fastapi import APIRouter
-from fastapi.responses import StreamingResponse
-import asyncio
-
-router = APIRouter()
-
-@router.get("/api/sessions/{session_id}/stream")
-async def stream_session(session_id: str):
-    async def event_generator():
-        # Stream events from the session
-        while True:
-            # Get events from session
-            event = await get_session_event(session_id)
-            if event:
-                yield f"data: {json.dumps(event)}\n\n"
-            if event.get('type') == 'done':
-                break
-            await asyncio.sleep(0.1)
-    
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream"
-    )
+def __init__(self, repo_path: str, base_url: str = "http://localhost:1234/v1", model: str = None)
 ```
 
-**Status:** Backend issue - needs backend team to implement SSE endpoint
+No `api_key` parameter is required for LMStudio since it runs locally.
 
 ---
 
-### 2. LMStudio Provider Initialization Error
+### 3. ~~Merge Conflict in backend/main.py~~ ✅ RESOLVED
 
-**Issue:**
-```
-Warning: Failed to initialize LM Studio provider: LMStudioProvider.__init__() got an unexpected keyword argument 'api_key'
-```
+**Status:** ✅ **RESOLVED** - Merge conflict resolved
 
-**Root Cause:**
-The LMStudio provider doesn't accept `api_key` parameter but the backend is trying to pass it.
-
-**Impact:**
-- LMStudio model may not work properly
-- Other models (Claude, OpenRouter) should work fine
-
-**Workaround:**
-Use Claude or OpenRouter models instead:
-```bash
-/model claude
-# or
-/model openrouter
-```
-
-**Status:** Backend issue - LMStudio provider needs to be fixed
+The duplicate `/api/status` endpoint definition and merge conflict markers in [`backend/main.py`](../backend/main.py:51) have been resolved. The file now has a single, clean endpoint definition.
 
 ---
 
-## TUI Workarounds
+## Integration Notes
 
-### Temporary Solution: Polling Instead of SSE
+### SSE Streaming Endpoint
 
-Until the backend implements SSE streaming, the TUI could use polling:
+The backend provides SSE streaming at `/api/stream/{session_id}`. Frontend/TUI should:
+1. Connect to this endpoint after creating a session
+2. Listen for `message` events with JSON data
+3. Handle `type: "output"` for content chunks
+4. Handle `type: "done"` for completion
 
-```typescript
-// Poll for results instead of SSE
-const pollForResults = async (sessionId: string) => {
-  const interval = setInterval(async () => {
-    try {
-      const result = await api.getSessionResult(sessionId);
-      if (result.status === 'complete') {
-        // Update message with result
-        clearInterval(interval);
-      }
-    } catch (error) {
-      clearInterval(interval);
-    }
-  }, 500); // Poll every 500ms
-};
-```
+### Available API Endpoints
 
-### Alternative: Use Existing Endpoints
-
-Check if backend has alternative endpoints:
+- `/api/stream/{session_id}` - SSE streaming output
 - `/api/results/{session_id}` - Get final result
 - `/api/tasks/{task_id}/status` - Check task status
-- WebSocket endpoint instead of SSE
+- `/api/status` - Backend health and metrics
 
 ---
 
@@ -142,27 +78,27 @@ The TUI frontend is working correctly. All issues are backend-related.
 - [x] Backend status check works
 - [x] Messages can be sent
 - [x] Backend receives and processes messages
-- [ ] SSE streaming works (404 error)
-- [ ] Real-time responses display
-- [ ] LMStudio provider works (initialization error)
+- [x] SSE streaming endpoint exists
+- [x] LMStudio provider initialization fixed
+- [x] Merge conflict in main.py resolved
+- [ ] Real-time responses display (needs TUI endpoint update to `/api/stream/{session_id}`)
 
 ---
 
 ## Next Steps
 
 **For Backend Team:**
-1. Implement `/api/sessions/{session_id}/stream` SSE endpoint
-2. Fix LMStudio provider initialization
-3. Add WebSocket support as alternative to SSE
-4. Document all API endpoints
+1. ✅ ~~Implement SSE endpoint~~ - Complete
+2. ✅ ~~Fix LMStudio provider~~ - Complete
+3. ✅ ~~Resolve merge conflict in main.py~~ - Complete
+4. Document all API endpoints in OpenAPI/Swagger (visit `/docs` for auto-generated docs)
 
-**For Frontend Team:**
-1. TUI is complete and working ✅
-2. Waiting for backend SSE endpoint
-3. Can implement polling workaround if needed
-4. All UI features working perfectly
+**For Frontend/TUI Team:**
+1. Update SSE connection to use `/api/stream/{session_id}` (not `/api/sessions/{session_id}/stream`)
+2. Test real-time streaming with corrected endpoint
+3. Verify LMStudio provider works with local models
 
 ---
 
-**Last Updated:** 2026-05-17
-**Status:** Backend API incomplete - SSE endpoint missing
+**Last Updated:** 2026-05-17 16:38 UTC
+**Status:** ✅ All critical issues resolved - ready for integration testing

@@ -279,7 +279,8 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     }
 
     case 'SCAN_WORKSPACE': {
-      // Trigger workspace rescan - implementation can be added later
+      // Trigger workspace rescan - currently just returns state
+      // Could be extended to actually rescan files
       return state;
     }
 

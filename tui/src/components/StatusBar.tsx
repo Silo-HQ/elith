@@ -1,13 +1,25 @@
 // Status bar - fixed at bottom, single line, always visible
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Text } from 'ink';
 import { useAppState } from '../store/appStore.js';
 import { theme, glyphs } from '../theme.js';
 
 export const StatusBar = React.memo(() => {
   const state = useAppState();
-  const cols = process.stdout.columns || 80;
+  const [cols, setCols] = useState(process.stdout.columns || 80);
+
+  // Handle terminal resize
+  useEffect(() => {
+    const handleResize = () => {
+      setCols(process.stdout.columns || 80);
+    };
+
+    process.stdout.on('resize', handleResize);
+    return () => {
+      process.stdout.off('resize', handleResize);
+    };
+  }, []);
 
   // Format numbers
   const formatTokens = (tokens: number): string => {
@@ -20,9 +32,9 @@ export const StatusBar = React.memo(() => {
   // Responsive layout based on terminal width
   const getStatusContent = () => {
     const isOffline = state.backendStatus === 'offline';
-    const quotaDisplay = isOffline ? '--' : `${state.quotaPercent}%`;
-    const ctxDisplay = isOffline ? '--' : `${state.ctxPercent}%`;
-    const tokensDisplay = isOffline ? '--' : formatTokens(state.tokens);
+    const displayTokens = isOffline ? '--' : formatTokens(state.tokens);
+    const displayQuota = isOffline ? '--' : `${state.quotaPercent}%`;
+    const displayContext = isOffline ? '--' : `${state.ctxPercent}%`;
 
     if (cols < 80) {
       // Minimal: only model and tokens
@@ -36,7 +48,7 @@ export const StatusBar = React.memo(() => {
           )}
           <Text color={theme.brand}>/model {state.model}</Text>
           <Text color={theme.textDimmer}> · </Text>
-          <Text color={theme.text}>{tokensDisplay} tokens</Text>
+          <Text color={theme.text}>{displayTokens} tokens</Text>
         </>
       );
     }
@@ -61,11 +73,11 @@ export const StatusBar = React.memo(() => {
           <Text color={theme.textDimmer}> · </Text>
           <Text color={theme.brand}>/model {state.model}</Text>
           <Text color={theme.textDimmer}> · </Text>
-          <Text color={theme.accent}>quota {quotaDisplay} used</Text>
+          <Text color={theme.accent}>quota {displayQuota} used</Text>
           <Text color={theme.textDimmer}> · </Text>
-          <Text color={theme.accent}>context {ctxDisplay} used</Text>
+          <Text color={theme.accent}>context {displayContext} used</Text>
           <Text color={theme.textDimmer}> · </Text>
-          <Text color={theme.text}>{tokensDisplay} tokens</Text>
+          <Text color={theme.text}>{displayTokens} tokens</Text>
         </>
       );
     }
@@ -89,21 +101,21 @@ export const StatusBar = React.memo(() => {
         <Text color={theme.textDimmer}> · </Text>
         <Text color={theme.brand}>/model {state.model}</Text>
         <Text color={theme.textDimmer}> · </Text>
-        <Text color={theme.accent}>quota {quotaDisplay} used</Text>
+        <Text color={theme.accent}>quota {displayQuota} used</Text>
         <Text color={theme.textDimmer}> · </Text>
-        <Text color={theme.accent}>context {ctxDisplay} used</Text>
+        <Text color={theme.accent}>context {displayContext} used</Text>
         <Text color={theme.textDimmer}> · </Text>
         <Text color={theme.textDim}>memory {state.memoryMB} MB</Text>
         <Text color={theme.textDimmer}> · </Text>
         <Text color={theme.textDim}>session {state.sessionId}</Text>
         <Text color={theme.textDimmer}> · </Text>
-        <Text color={theme.text}>{tokensDisplay} tokens</Text>
+        <Text color={theme.text}>{displayTokens} tokens</Text>
       </>
     );
   };
 
   return (
-    <Box paddingTop={1} width="100%">
+    <Box width="100%" flexShrink={0}>
       {getStatusContent()}
     </Box>
   );

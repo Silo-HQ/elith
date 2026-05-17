@@ -20,9 +20,9 @@ IBM Bob is powerful because it lives inside your repository — reading files, w
 
 ✅ **Universal Model Support**: Works with Claude, Gemini, GPT, LMStudio, and any OpenAI-compatible API  
 ✅ **Smart Context Engine**: Loads only 4-6 relevant files from 100+ (90%+ token reduction)  
-✅ **Obsidian Integration**: Project memory without vector DB overhead  
-✅ **Novel Architecture Generator**: Repo-specific proposals, not generic textbook answers  
-✅ **Dual Interface**: Terminal UI (Textual) + Web Dashboard (React)  
+✅ **Obsidian Integration**: Project memory without vector DB overhead
+✅ **Novel Architecture Generator**: Repo-specific proposals, not generic textbook answers
+✅ **Dual Interface**: Terminal UI (TypeScript/Ink) + Web Dashboard (React)
 ✅ **Real-time Streaming**: SSE for live output in both interfaces
 
 ## Quick Start
@@ -74,8 +74,14 @@ Backend runs at: `http://localhost:8000`
 
 ```bash
 # In a new terminal
-source venv/bin/activate
-python -m tui.app
+./run_tui.sh
+```
+
+Or manually:
+```bash
+cd tui
+npm install  # First time only
+npm run dev
 ```
 
 ### 5. Run Web Dashboard (Optional)
@@ -93,11 +99,11 @@ Frontend runs at: `http://localhost:5173`
 
 ### Terminal UI (TUI)
 
-1. Launch TUI: `python -m tui.app`
-2. Select workspace directory
-3. Choose operation: Explain, Architect, Test Gen, or Refactor
-4. Select AI model (only configured models shown)
-5. Watch real-time output with context preview
+1. Launch TUI: `./run_tui.sh`
+2. The TUI connects to the backend at `http://localhost:8000`
+3. Use commands like `/help`, `/models`, `/model <name>` to interact
+4. Type your questions or requests naturally
+5. Watch real-time streaming responses
 
 ### Web Dashboard
 

@@ -44,7 +44,7 @@ export const InputArea: React.FC<InputAreaProps> = ({ onSubmit }) => {
   const showQueuedBadge = state.status !== 'idle' && value.length > 0;
 
   return (
-    <Box flexDirection="column" borderStyle="single" borderColor={theme.borderDim} paddingX={1}>
+    <Box flexDirection="column" borderStyle="single" borderColor={theme.borderDim} paddingX={1} flexShrink={0}>
       {/* Input row */}
       <Box>
         <Text color={theme.accent}>{glyphs.prompt} </Text>
@@ -61,10 +61,10 @@ export const InputArea: React.FC<InputAreaProps> = ({ onSubmit }) => {
         )}
       </Box>
 
-      {/* Hints row */}
+      {/* Hints row - compact */}
       <Box>
         <Text color={theme.textDim} dimColor>
-          Shift+Enter multiline · Tab expand · ? help · ↑↓ history
+          Shift+Enter multiline · Tab expand · ? help
         </Text>
       </Box>
     </Box>

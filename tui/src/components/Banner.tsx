@@ -1,64 +1,46 @@
-// Banner - always visible at top, memoized
+// Banner - ELITH ASCII art with info
 
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from 'ink';
-import { theme, glyphs } from '../theme.js';
+import { theme } from '../theme.js';
 import { api } from '../api/client.js';
+
+const LOGO = `███████╗██╗     ██╗████████╗██╗  ██╗
+██╔════╝██║     ██║╚══██╔══╝██║  ██║
+█████╗  ██║     ██║   ██║   ███████║
+██╔══╝  ██║     ██║   ██║   ██╔══██║
+███████╗███████╗██║   ██║   ██║  ██║
+╚══════╝╚══════╝╚═╝   ╚═╝   ╚═╝  ╚═╝`;
 
 export const Banner = React.memo(() => {
   const [model, setModel] = useState('lmstudio');
-  const [backend, setBackend] = useState('http://localhost:8000');
-  const cols = process.stdout.columns || 80;
 
   useEffect(() => {
-    // Fetch models and status on mount
+    // Fetch models and status on mount - silently fail if backend offline
     api.getModels()
       .then(data => {
         if (data.current) setModel(data.current);
       })
-      .catch(console.error);
+      .catch(() => {
+        // Silently ignore - backend may be offline
+      });
   }, []);
 
-  const separator = glyphs.sep.repeat(cols);
-  const centerText = (text: string): string => {
-    const padding = Math.max(0, Math.floor((cols - text.length) / 2));
-    return ' '.repeat(padding) + text;
-  };
-
   return (
-    <Box flexDirection="column" paddingBottom={1}>
-      {/* Title */}
+    <Box flexDirection="column" flexShrink={0} paddingBottom={1}>
+      {/* ASCII Art Logo */}
       <Box justifyContent="center">
-        <Text color={theme.brand}>{glyphs.brand}  ELITH v1.0.0</Text>
+        <Text color={theme.brand}>{LOGO}</Text>
       </Box>
       
-      {/* Auth line */}
+      {/* Info section - single line */}
       <Box justifyContent="center">
-        <Text color={theme.textDim}>Signed in with {model} /auth</Text>
-      </Box>
-      
-      {/* Model and backend */}
-      <Box justifyContent="center">
-        <Text color={theme.textDim}>Model: </Text>
+        <Text color={theme.textDim}>AI-Powered Code Assistant · </Text>
+        <Text color={theme.accent}>v1.0.0</Text>
+        <Text color={theme.textDim}> · Model: </Text>
         <Text color={theme.accent}>{model}</Text>
-        <Text color={theme.textDim}> · Backend: </Text>
-        <Text color={theme.accent}>{backend}</Text>
-      </Box>
-
-      {/* Info lines */}
-      <Box marginTop={1}>
-        <Text color={theme.warning}>{glyphs.info}  </Text>
-        <Text color={theme.text}>MCP connected. 12 skills active. Run /skills for list.</Text>
-      </Box>
-      
-      <Box>
-        <Text color={theme.warning}>{glyphs.info}  </Text>
-        <Text color={theme.text}>Context engine ready. Workspace: ~/project</Text>
-      </Box>
-
-      {/* Separator */}
-      <Box marginTop={1}>
-        <Text color={theme.separator}>{separator}</Text>
+        <Text color={theme.textDim}> · Status: </Text>
+        <Text color={theme.success}>Ready</Text>
       </Box>
     </Box>
   );

@@ -1,281 +1,245 @@
-# Elith TUI (Terminal User Interface)
+# Elith TypeScript TUI
 
-A powerful terminal interface for Elith, built with Python Textual framework.
+A modern Terminal User Interface for Elith built with TypeScript, React, and Ink. This replaces the Python/Textual implementation with a TypeScript-based solution that shares code with the web frontend.
 
 ## Features
 
-✅ **6 Complete Screens**
-- Welcome - ASCII art logo, command reference
-- Workspace - Main working screen with context and output
-- Execution - Multi-model execution with live progress
-- Proposals - Architecture proposals with keyboard selection
-- Results - Session summary with file changes and stats
+- **TypeScript + React**: Built with TypeScript and React using Ink for terminal rendering
+- **Shared Code**: Uses the same API client and types as the web frontend
+- **Modern Architecture**: Clean component-based architecture with hooks
+- **Real-time Streaming**: Server-Sent Events for live AI responses
+- **Command System**: Slash commands for quick actions
+- **Model Switching**: Easy switching between AI models
+- **Clean Design**: Purple accent theme matching Elith brand
 
-✅ **7 Reusable Components**
-- StatusBar - Always-visible bottom status bar
-- InputBar - Yellow-bordered input with cursor
-- OutputPanel - Scrolling model output
-- ContextPanel - Files loaded, vault notes, token savings
-- ProposalBox - Single proposal display with tradeoffs
-- ProgressBar - Progress indicator with percentage
-- ModelDot - Colored status dots for models
+## Architecture
 
-✅ **Design Compliance**
-- Matches ELITH_TUI_SPEC.md exactly
-- Bob Shell screenshot style
-- Dark near-black background (#0A0A0A)
-- Cyan for commands and headers
-- Purple accent (#A855F7)
-- Model-specific colors (Bob blue, Claude orange, Gemini cyan)
-- Monospace font throughout
+```
+tui-ts/
+├── src/
+│   ├── components/          # React components
+│   │   ├── StatusBar.tsx    # Bottom status bar
+│   │   ├── ChatInput.tsx    # Input component
+│   │   └── MessagesPanel.tsx # Message display
+│   ├── services/            # API services
+│   │   └── api.ts           # Backend API client (shared with frontend)
+│   ├── types/               # TypeScript types
+│   │   └── api.ts           # API types (shared with frontend)
+│   ├── theme.ts             # Theme configuration
+│   ├── App.tsx              # Main app component
+│   └── index.tsx            # Entry point
+├── package.json
+├── tsconfig.json
+└── run.sh                   # Run script
+```
 
 ## Installation
 
-```bash
-# Install dependencies
-pip install textual pyfiglet
+### Local Installation
 
-# Or use requirements.txt
-pip install -r requirements.txt
+```bash
+cd tui-ts
+npm install
+```
+
+### Global Installation (Recommended)
+
+Install globally to access `elith-tui` from anywhere:
+
+```bash
+cd tui-ts
+./install-global.sh
+```
+
+After installation, you can run `elith-tui` from any directory:
+
+```bash
+elith-tui
+```
+
+To uninstall:
+
+```bash
+npm unlink -g elith-tui
 ```
 
 ## Usage
 
-```bash
-# Run the TUI
-python tui/app.py
+### Global Command (After Global Install)
 
-# Or from project root
-python -m tui.app
+```bash
+elith-tui
 ```
+
+### Development Mode
+
+```bash
+npm run dev
+# or
+./run.sh
+```
+
+### Build
+
+```bash
+npm run build
+```
+
+### Run Built Version
+
+```bash
+npm start
+```
+
+## Commands
+
+The TUI supports the following slash commands:
+
+- `/help` - Show help message
+- `/models` - List available models
+- `/model <name>` - Switch to a different model
+- `/clear` - Clear chat history
+- `/repo <path>` - Set repository path
 
 ## Keyboard Shortcuts
 
-### Global
-- `Ctrl+C` - Quit application
-- `Ctrl+L` - Clear screen
-- `Ctrl+E` - Export session
-- `Escape` - Go back to previous screen
+- `Ctrl+C` - Exit the application
+- `Enter` - Submit message/command
 
-### Welcome Screen
-- `Enter` - Start session
-- `/` - Show command list
-- `@` - File picker
+## Code Sharing with Frontend
 
-### Workspace Screen
-- `Enter` - Execute command
-- `↑/↓` - Navigate command history
-- `Tab` - Autocomplete
+The TUI shares the following with the web frontend:
 
-### Proposals Screen
-- `A` - Implement proposal A
-- `B` - Implement proposal B
+### Shared Types (`src/types/api.ts`)
+- `ScanRequest`, `ScanResponse`
+- `ExecuteRequest`, `ExecuteResponse`
+- `StreamEvent`, `ResultsResponse`
+- `ModelsResponse`, `TasksResponse`
+- `ApiError`
 
-### Results Screen
-- `N` - New task
-- `V` - View diff
-- `E` - Export report
+### Shared API Client (`src/services/api.ts`)
+- `api.scan()` - Scan repository
+- `api.execute()` - Execute operations
+- `api.streamSession()` - Stream responses
+- `api.getResults()` - Get session results
+- `api.getModels()` - Get available models
+- `api.getTasks()` - Get available tasks
 
-## Screen Flow
+## Benefits Over Python TUI
 
-```
-Welcome
-   ↓
-Workspace ←→ Execution
-   ↓            ↓
-Proposals    Results
-   ↓            ↓
-Execution    Workspace
-   ↓
-Results
-```
-
-## Components
-
-### StatusBar
-Always visible at bottom, shows:
-- Auto-approve mode
-- Token usage percentage
-- Current model with status dot
-- Current mode (Code, Plan, etc.)
-
-### InputBar
-Yellow-bordered input field with:
-- `> │` prefix
-- Blinking cursor
-- Command history support
-
-### OutputPanel
-Scrolling output with:
-- Model-specific headers (● BOB, ● CLAUDE)
-- Color-coded output
-- Auto-scroll to bottom
-
-### ContextPanel
-Displays:
-- Files loaded (6 / 312)
-- List of loaded files with → arrows
-- Vault notes count
-- Token savings calculation
-
-### ProposalBox
-Shows:
-- Option ID and name
-- [RECOMMENDED] badge if applicable
-- "Why not standard" explanation
-- Proposal description
-- Tradeoffs (pros/cons)
-- Migration steps
-- Keyboard shortcut hint
-
-### ProgressBar
-Displays:
-- Label and percentage
-- Visual progress bar
-- Smooth updates
-
-### ModelDot
-Shows:
-- Colored dot (● or ○)
-- Model name
-- Status (idle, running, done, error)
-
-## Mock Data
-
-All screens use mock data for testing:
-
-```python
-# Context data
-loaded_files = ["auth/views.py", "auth/models.py", ...]
-total_files = 312
-vault_notes = ["auth-decisions.md", "tech-debt.md", ...]
-tokens_saved = 4200
-
-# Proposals
-proposals = [
-    {
-        "id": "A",
-        "name": "JWT + Redis Session Hybrid",
-        "recommended": True,
-        ...
-    },
-    {
-        "id": "B",
-        "name": "OAuth2 + PKCE Flow",
-        "recommended": False,
-        ...
-    }
-]
-
-# Results
-results = {
-    "files_changed": [...],
-    "why": "...",
-    "models_used": ["bob", "claude"],
-    "context_stats": {...},
-    "bob_report_path": "..."
-}
-```
-
-## File Structure
-
-```
-tui/
-├── app.py                      # Main Textual app
-├── README.md                   # This file
-├── screens/
-│   ├── __init__.py
-│   ├── welcome.py              # Welcome screen with ASCII logo
-│   ├── workspace.py            # Main working screen
-│   ├── execution.py            # Multi-model execution
-│   ├── proposals.py            # Architecture proposals
-│   └── results.py              # Session results
-└── components/
-    ├── __init__.py
-    ├── status_bar.py           # Bottom status bar
-    ├── input_bar.py            # Yellow-bordered input
-    ├── output_panel.py         # Scrolling output
-    ├── context_panel.py        # Context display
-    ├── proposal_box.py         # Proposal display
-    ├── progress_bar.py         # Progress indicator
-    └── model_dot.py            # Model status dot
-```
+1. **Code Reuse**: Shares types and API client with frontend
+2. **Type Safety**: Full TypeScript type checking
+3. **Modern Stack**: React + Ink ecosystem
+4. **Better Performance**: Node.js runtime
+5. **Easier Maintenance**: Single language across frontend and TUI
+6. **Rich Ecosystem**: Access to npm packages
 
 ## Development
 
-### Adding a New Screen
+### Adding New Components
 
-1. Create file in `tui/screens/`
-2. Inherit from `Screen`
-3. Define `BINDINGS` for keyboard shortcuts
-4. Implement `compose()` method
-5. Add action methods for bindings
-6. Register in `app.py`
+Create new components in `src/components/`:
 
-### Adding a New Component
+```tsx
+import React from 'react';
+import { Box, Text } from 'ink';
 
-1. Create file in `tui/components/`
-2. Inherit from `Static` or appropriate widget
-3. Define `DEFAULT_CSS` for styling
-4. Implement `compose()` method
-5. Add update methods as needed
+export const MyComponent: React.FC = () => {
+  return (
+    <Box>
+      <Text>Hello from MyComponent</Text>
+    </Box>
+  );
+};
+```
 
-### Styling
+### Adding New Commands
 
-Use Textual CSS in `DEFAULT_CSS`:
-- Colors: `color: #RRGGBB` or `color: cyan`
-- Borders: `border: solid cyan`
-- Padding: `padding: 1`
-- Margin: `margin: 1`
-- Text style: `text-style: bold`
+Add command handlers in `App.tsx`:
 
-## Testing
+```tsx
+const handleCommand = async (command: string) => {
+  if (command === '/mycommand') {
+    // Handle your command
+    addMessage('system', 'Command executed', 'elith');
+  }
+};
+```
+
+## Dependencies
+
+### Core
+- `ink` - React for CLIs
+- `react` - React library
+- `chalk` - Terminal colors
+- `node-fetch` - HTTP client
+- `eventsource` - SSE client
+
+### UI Components
+- `ink-text-input` - Text input component
+- `ink-select-input` - Select input component
+- `ink-spinner` - Loading spinner
+- `ink-box` - Box component
+
+### Development
+- `typescript` - TypeScript compiler
+- `tsx` - TypeScript execution
+- `@types/*` - Type definitions
+
+## Backend Integration
+
+The TUI connects to the Elith backend at `http://localhost:8000/api`. Make sure the backend is running:
 
 ```bash
-# Run the TUI
-python tui/app.py
-
-# Test specific screen
-# (modify app.py to start on different screen)
+# In the project root
+python -m uvicorn backend.main:app --reload --port 8000
 ```
 
-## Integration with Backend
+## Troubleshooting
 
-When backend is ready (Hour 23+), replace mock data with:
+### Backend Connection Issues
 
-```python
-# In workspace.py
-async def execute_command(self, command: str):
-    # POST to /api/execute
-    response = await api.execute(command)
-    session_id = response["session_id"]
-    
-    # Switch to execution screen
-    self.app.push_screen(ExecutionScreen(session_id))
+If you see "Backend not available" messages:
+1. Ensure the backend is running on port 8000
+2. Check that the API_BASE URL in `src/services/api.ts` is correct
+3. Verify network connectivity
 
-# In execution.py
-async def stream_output(self, session_id: str):
-    # SSE from /api/stream/{session_id}
-    async for event in api.stream(session_id):
-        self.add_output(event["model"], event["line"])
-        self.update_progress(event["model"], event["progress"])
+### TypeScript Errors
+
+Run type checking:
+```bash
+npm run build
 ```
 
-## Known Issues
+### Module Not Found
 
-- Type errors expected until `textual` is installed
-- Some components need `query_one()` for dynamic updates
-- Screen transitions need proper state management
+Reinstall dependencies:
+```bash
+rm -rf node_modules package-lock.json
+npm install
+```
 
-## Next Steps
+## Future Enhancements
 
-1. Install textual: `pip install textual pyfiglet`
-2. Test all screens and navigation
-3. Wire to backend API (Hour 23+)
-4. Add real-time streaming
-5. Implement command history
-6. Add file picker functionality
+- [ ] Add Welcome screen with ASCII art
+- [ ] Add Workspace screen with context panel
+- [ ] Add Execution screen with progress tracking
+- [ ] Add Proposals screen for architecture proposals
+- [ ] Add file tree navigation
+- [ ] Add syntax highlighting for code blocks
+- [ ] Add keyboard shortcuts panel
+- [ ] Add session history
+- [ ] Add configuration file support
 
----
+## Contributing
 
-*TUI Implementation Complete - Ready for Backend Integration*
+When adding features:
+1. Keep components small and focused
+2. Share types with frontend when possible
+3. Follow the existing code style
+4. Add TypeScript types for all props
+5. Test with the backend running
+
+## License
+
+Part of the Elith project.

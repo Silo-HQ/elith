@@ -29,16 +29,12 @@ function scanLocalFiles(dir: string, depth = 0): FileItem[] {
     return readdirSync(dir).flatMap(name => {
       if (SKIP.has(name)) return [];
       const full = join(dir, name);
-      try {
-        const stat = statSync(full);
-        const path = relative(process.cwd(), full);
-        if (stat.isDirectory()) {
-          return [{ path, type: 'directory' as const }, ...scanLocalFiles(full, depth + 1)];
-        }
-        return [{ path, type: 'file' as const }];
-      } catch {
-        return [];
+      const stat = statSync(full);
+      const path = relative(process.cwd(), full);
+      if (stat.isDirectory()) {
+        return [{ path, type: 'directory' as const }, ...scanLocalFiles(full, depth + 1)];
       }
+      return [{ path, type: 'file' as const }];
     });
   } catch {
     return [];
@@ -50,9 +46,9 @@ export const CommandPanel: React.FC = () => {
   const dispatch = useAppDispatch();
   const [files, setFiles] = useState<FileItem[]>([]);
 
-  // Scan local files for @ trigger
+  // Scan files locally for @ trigger
   useEffect(() => {
-    if (state.triggerMode === 'file' || state.triggerMode === 'context') {
+    if (state.triggerMode === 'file') {
       const scannedFiles = scanLocalFiles(state.workspace);
       setFiles(scannedFiles);
     }
@@ -113,14 +109,15 @@ export const CommandPanel: React.FC = () => {
         visibleItems.map((item, index) => {
           const isSelected = index === state.panelSelectedIndex;
           return (
-            <Box key={item.id}>
-              <Text backgroundColor={isSelected ? theme.surfaceAlt : undefined}>
-                <Text color={theme.accent}>{item.icon} </Text>
-                <Text color={isSelected ? theme.text : theme.textDim} bold={isSelected}>
-                  {item.name}
-                </Text>
-                <Text color={theme.textDim}> · {item.description}</Text>
+            <Box
+              key={item.id}
+              backgroundColor={isSelected ? theme.surfaceAlt : undefined}
+            >
+              <Text color={theme.accent}>{item.icon} </Text>
+              <Text color={isSelected ? theme.text : theme.textDim} bold={isSelected}>
+                {item.name}
               </Text>
+              <Text color={theme.textDim}> · {item.description}</Text>
             </Box>
           );
         })

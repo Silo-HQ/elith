@@ -14,6 +14,9 @@ Requires-Dist: textual>=0.47.0
 Requires-Dist: pyfiglet>=1.0.2
 Requires-Dist: rich>=13.0.0
 Requires-Dist: anthropic>=0.18.0
+Requires-Dist: google-generativeai>=0.3.0
 Requires-Dist: openai>=1.0.0
 Requires-Dist: requests>=2.31.0
+Requires-Dist: httpx>=0.26.0
+Requires-Dist: psutil>=5.9.6
 Dynamic: license-file

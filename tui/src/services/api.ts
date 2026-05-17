@@ -1,8 +1,8 @@
 // API service layer for backend communication
 // Shared between frontend and TUI
 
-import fetch from 'node-fetch';
 import EventSource from 'eventsource';
+import { notifyBackendStatus } from '../api/client.js';
 import {
   ScanRequest,
   ScanResponse,
@@ -30,24 +30,38 @@ export const api = {
    * Scan repository and vault for context
    */
   async scan(request: ScanRequest): Promise<ScanResponse> {
-    const response = await fetch(`${API_BASE}/scan`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    });
-    return handleResponse<ScanResponse>(response);
+    try {
+      const response = await fetch(`${API_BASE}/scan`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+      const data = await handleResponse<ScanResponse>(response);
+      notifyBackendStatus('online');
+      return data;
+    } catch {
+      notifyBackendStatus('offline');
+      throw new Error('Backend offline');
+    }
   },
 
   /**
    * Execute an operation (explain, architect, test-gen, refactor)
    */
   async execute(request: ExecuteRequest): Promise<ExecuteResponse> {
-    const response = await fetch(`${API_BASE}/execute`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    });
-    return handleResponse<ExecuteResponse>(response);
+    try {
+      const response = await fetch(`${API_BASE}/execute`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+      const data = await handleResponse<ExecuteResponse>(response);
+      notifyBackendStatus('online');
+      return data;
+    } catch {
+      notifyBackendStatus('offline');
+      throw new Error('Backend offline');
+    }
   },
 
   /**
@@ -58,23 +72,33 @@ export const api = {
     onEvent: (event: StreamEvent) => void,
     onError?: (error: Error) => void
   ): EventSource {
-    const eventSource = new EventSource(`${API_BASE}/stream/${sessionId}`);
+    let eventSource: EventSource;
+    try {
+      eventSource = new EventSource(`${API_BASE}/stream/${sessionId}`);
+    } catch {
+      notifyBackendStatus('offline');
+      onEvent({ type: 'error', error: 'Connection lost' });
+      throw new Error('Connection lost');
+    }
 
     eventSource.onmessage = (event: any) => {
       try {
         const data = JSON.parse(event.data) as StreamEvent;
         onEvent(data);
-      } catch (error) {
-        console.error('Failed to parse SSE event:', error);
+      } catch {
+        notifyBackendStatus('offline');
+        onEvent({ type: 'error', error: 'Connection lost' });
       }
     };
 
-    eventSource.onerror = (error: any) => {
-      console.error('SSE connection error:', error);
-      eventSource.close();
-      if (onError) {
-        onError(new Error('Connection lost'));
-      } else {
+    eventSource.onerror = () => {
+      try {
+        eventSource.close();
+        notifyBackendStatus('offline');
+        onError?.(new Error('Connection lost'));
+        onEvent({ type: 'error', error: 'Connection lost' });
+      } catch {
+        notifyBackendStatus('offline');
         onEvent({ type: 'error', error: 'Connection lost' });
       }
     };
@@ -86,24 +110,45 @@ export const api = {
    * Get results for a completed session
    */
   async getResults(sessionId: string): Promise<ResultsResponse> {
-    const response = await fetch(`${API_BASE}/results/${sessionId}`);
-    return handleResponse<ResultsResponse>(response);
+    try {
+      const response = await fetch(`${API_BASE}/results/${sessionId}`);
+      const data = await handleResponse<ResultsResponse>(response);
+      notifyBackendStatus('online');
+      return data;
+    } catch {
+      notifyBackendStatus('offline');
+      throw new Error('Backend offline');
+    }
   },
 
   /**
    * Get available and configured models
    */
   async getModels(): Promise<ModelsResponse> {
-    const response = await fetch(`${API_BASE}/models`);
-    return handleResponse<ModelsResponse>(response);
+    try {
+      const response = await fetch(`${API_BASE}/models`);
+      const data = await handleResponse<ModelsResponse>(response);
+      notifyBackendStatus('online');
+      return data;
+    } catch {
+      notifyBackendStatus('offline');
+      throw new Error('Backend offline');
+    }
   },
 
   /**
    * Get available operations/tasks
    */
   async getTasks(): Promise<TasksResponse> {
-    const response = await fetch(`${API_BASE}/tasks`);
-    return handleResponse<TasksResponse>(response);
+    try {
+      const response = await fetch(`${API_BASE}/tasks`);
+      const data = await handleResponse<TasksResponse>(response);
+      notifyBackendStatus('online');
+      return data;
+    } catch {
+      notifyBackendStatus('offline');
+      throw new Error('Backend offline');
+    }
   },
 };
 

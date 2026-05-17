@@ -22,12 +22,14 @@ backend/routes/__init__.py
 backend/routes/chat.py
 backend/routes/create_project.py
 backend/routes/execute.py
+backend/routes/history.py
 backend/routes/models.py
 backend/routes/results.py
 backend/routes/scan.py
 backend/routes/stream.py
 backend/routes/tasks.py
 backend/session/__init__.py
+backend/session/history.py
 backend/session/logger.py
 backend/session/manager.py
 backend/skills/__init__.py
@@ -46,9 +48,12 @@ backend/skills/search_code.py
 backend/skills/write_file.py
 backend/utils/__init__.py
 backend/utils/logger.py
+backend/utils/service_manager.py
 elith.egg-info/PKG-INFO
 elith.egg-info/SOURCES.txt
 elith.egg-info/dependency_links.txt
 elith.egg-info/entry_points.txt
 elith.egg-info/requires.txt
 elith.egg-info/top_level.txt
+tui/__init__.py
+tui/screens/__init__.py

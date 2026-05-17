@@ -76,6 +76,42 @@ export interface TasksResponse {
   operations: string[];
 }
 
+export interface HistoryEntry {
+  session_id: string;
+  model: string;
+  operation: string;
+  repo_path: string;
+  vault_path?: string;
+  status: string;
+  created_at: string;
+  completed_at?: string;
+  report_path?: string;
+  files_changed: string[];
+  output_preview: string;
+}
+
+export interface HistoryResponse {
+  sessions: HistoryEntry[];
+  total: number;
+}
+
+export interface StatusResponse {
+  status: string;
+  version: string;
+  model: string;
+  skills: number;
+  ctx_percent: number;
+  quota_percent: number;
+  memory_mb: number;
+  tokens: number;
+}
+
+export interface FileItem {
+  path: string;
+  type: 'file' | 'directory';
+  size?: number;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);

@@ -63,12 +63,7 @@ export const EnhancedStatusBar: React.FC<EnhancedStatusBarProps> = ({
   };
 
   return (
-    <Box
-      borderStyle="single"
-      borderColor="gray"
-      paddingX={1}
-      width="100%"
-    >
+    <Box paddingX={1} width="100%">
       <Box flexDirection="row" width="100%">
         {/* Status Indicator */}
         <Text color={statusColor}>{statusIcon} </Text>

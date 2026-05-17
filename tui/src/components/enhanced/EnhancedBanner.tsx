@@ -50,7 +50,7 @@ export const EnhancedBanner: React.FC<{
   if (compact) {
     return (
       <Box flexDirection="column" paddingBottom={1}>
-        <Box justifyContent="center">
+        <Box>
           <Text color={theme.colors.brand} bold>ELITH</Text>
           <Text color={theme.colors.textDim}> · </Text>
           <Text color={theme.colors.accent}>v1.0.0</Text>
@@ -65,17 +65,17 @@ export const EnhancedBanner: React.FC<{
   return (
     <Box flexDirection="column" paddingY={1}>
       {/* ASCII Art Logo with gradient */}
-      <Box justifyContent="center" marginBottom={1}>
+      <Box marginBottom={1}>
         <Text>{gradientLogo}</Text>
       </Box>
 
       {/* Animated tagline */}
-      <Box justifyContent="center" marginBottom={1}>
+      <Box marginBottom={1}>
         <Text color={theme.colors.textDim}>{TAGLINES[taglineIndex]}</Text>
       </Box>
 
       {/* Info bar */}
-      <Box justifyContent="center">
+      <Box>
         <Text color={theme.colors.accent}>v1.0.0</Text>
         <Text color={theme.colors.textDim}> · </Text>
         <Text color={theme.colors.textDim}>Theme: </Text>
@@ -85,7 +85,7 @@ export const EnhancedBanner: React.FC<{
       </Box>
 
       {/* Separator */}
-      <Box justifyContent="center" marginTop={1}>
+      <Box marginTop={1}>
         <Text color={theme.colors.border}>{'─'.repeat(80)}</Text>
       </Box>
     </Box>

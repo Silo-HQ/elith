@@ -14,15 +14,18 @@ dependencies = [
     "pyfiglet>=1.0.2",
     "rich>=13.0.0",
     "anthropic>=0.18.0",
+    "google-generativeai>=0.3.0",
     "openai>=1.0.0",
     "requests>=2.31.0",
+    "httpx>=0.26.0",
+    "psutil>=5.9.6",
 ]
 
 [project.scripts]
 elith = "cli:main"
 
 [tool.setuptools]
-packages = ["backend", "backend.context_engine", "backend.models", "backend.providers", "backend.routes", "backend.router", "backend.session", "backend.skills", "backend.utils"]
+packages = ["backend", "backend.context_engine", "backend.models", "backend.providers", "backend.routes", "backend.router", "backend.session", "backend.skills", "backend.utils", "tui", "tui.screens"]
 py-modules = ["cli"]
 
 [build-system]

@@ -100,6 +100,9 @@ export type AppAction =
   | { type: 'SET_MODEL'; payload: string }
   | { type: 'SET_MODE'; payload: 'autonomous' | 'confirm' }
   | { type: 'SET_BACKEND_STATUS'; payload: 'online' | 'offline' | 'unknown' }
+  | { type: 'SET_THINKING_WORD'; payload: string }
+  | { type: 'SET_THINKING_STARTED_AT'; payload: number | null }
+  | { type: 'SET_SHELL_MODE'; payload: boolean }
   | { type: 'SCAN_WORKSPACE' }
   | { type: 'SET_AUTO_SCROLL'; payload: { autoScroll: boolean } }
   | { type: 'SET_TRIGGER'; payload: { mode: TriggerMode; query: string } }

@@ -14,18 +14,32 @@ class ElithLocal < Formula
   depends_on "node"
 
   def install
-    # Install Python package
-    virtualenv_install_with_resources
-    
-    # Create config directory
-    (var/"elith").mkpath
-    
-    # Install TUI dependencies if directory exists
+    # Create virtualenv
+    virtualenv_create(libexec, "python3.10")
+
+    # Install Python package with dependencies from requirements.txt
+    system libexec/"bin/pip", "install", "--upgrade", "pip"
+    system libexec/"bin/pip", "install", "-r", "requirements.txt"
+    system libexec/"bin/pip", "install", "."
+
+    # Build and install TUI runtime into libexec so the formula is self-contained.
     if (buildpath/"tui").directory?
       cd "tui" do
-        system "npm", "install", "--production"
+        system "npm", "install"
+        system "npm", "run", "build"
+        system "npm", "prune", "--omit=dev"
       end
+
+      (libexec/"tui").install "tui/dist", "tui/node_modules", "tui/package.json"
     end
+
+    # Create wrapper script
+    (bin/"elith").write_env_script libexec/"bin/elith",
+      PATH: "#{libexec}/bin:$PATH",
+      ELITH_TUI_PATH: "#{libexec}/tui"
+
+    # Create config directory
+    (var/"elith").mkpath
   end
 
   def post_install

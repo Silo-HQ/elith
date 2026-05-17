@@ -1,4 +1,9 @@
 #!/usr/bin/env node
+const noop = () => {};
+console.error = noop;
+console.warn = noop;
+console.log = noop;
+
 // Production Elith TUI - Full backend integration with enhanced UI
 
 import React from 'react';

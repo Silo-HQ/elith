@@ -281,6 +281,18 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, backendStatus: action.payload };
     }
 
+    case 'SET_THINKING_WORD': {
+      return { ...state, thinkingWord: action.payload };
+    }
+
+    case 'SET_THINKING_STARTED_AT': {
+      return { ...state, thinkingStartedAt: action.payload };
+    }
+
+    case 'SET_SHELL_MODE': {
+      return { ...state, shellMode: action.payload };
+    }
+
     case 'SCAN_WORKSPACE': {
       // Trigger workspace rescan - currently just returns state
       // Could be extended to actually rescan files

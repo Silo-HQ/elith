@@ -72,6 +72,42 @@ pip install -e .
 
 See [INSTALL.md](INSTALL.md) for detailed installation instructions and troubleshooting.
 
+## Updating Elith
+
+### Production Updates
+
+```bash
+# Homebrew
+brew upgrade elith
+
+# npm/pnpm/bun
+npm update -g @elith/cli
+# or
+pnpm update -g @elith/cli
+# or
+bun update -g @elith/cli
+
+# Curl installer (re-run)
+curl -fsSL https://elith.silohq.tech/install.sh | sh
+```
+
+### Local Development Updates
+
+If you're developing Elith locally:
+
+```bash
+# Quick sync to installed version
+./sync-local-to-install.sh
+
+# Or manual update
+cd /Volumes/DataVault/Projects/elith
+git pull origin dev
+source .venv/bin/activate
+pip install -e . --upgrade
+```
+
+See [docs/LOCAL_DEVELOPMENT_UPDATES.md](docs/LOCAL_DEVELOPMENT_UPDATES.md) for detailed local development workflow.
+
 ### CLI Usage
 
 After installation, configure your AI provider:

@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import { highlight } from 'cli-highlight';
 
 export interface DiffLine {
   lineNumber: number;
@@ -24,28 +23,13 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ diff, maxHeight = 20 }) 
     const lineNumStr = line.lineNumber.toString().padStart(4, ' ');
     const prefix = line.type === 'add' ? '+' : line.type === 'remove' ? '-' : ' ';
     
-    // Apply syntax highlighting if language is specified
-    let highlightedContent = line.content;
-    if (diff.language) {
-      try {
-        highlightedContent = highlight(line.content, {
-          language: diff.language,
-          ignoreIllegals: true,
-        });
-      } catch {
-        // Fallback to plain text if highlighting fails
-        highlightedContent = line.content;
-      }
-    }
-
     const color = line.type === 'add' ? 'green' : line.type === 'remove' ? 'red' : 'white';
-    const bgColor = line.type === 'add' ? 'bgGreen' : line.type === 'remove' ? 'bgRed' : undefined;
 
     return (
       <Box key={`${line.lineNumber}-${line.type}`}>
         <Text color="gray">{lineNumStr} </Text>
-        <Text color={color} backgroundColor={bgColor ? bgColor : undefined}>
-          {prefix} {highlightedContent}
+        <Text color={color}>
+          {prefix} {line.content}
         </Text>
       </Box>
     );
@@ -55,7 +39,7 @@ export const DiffViewer: React.FC<DiffViewerProps> = ({ diff, maxHeight = 20 }) 
   const hasMore = diff.lines.length > maxHeight;
 
   return (
-    <Box flexDirection="column" borderStyle="single" borderColor="cyan" paddingX={1}>
+    <Box flexDirection="column" paddingX={1}>
       {/* Header */}
       <Box marginBottom={1}>
         <Text color="cyan" bold>

@@ -58,8 +58,6 @@ export const EditApproval: React.FC<EditApprovalProps> = ({
   return (
     <Box 
       flexDirection="column" 
-      borderStyle="single" 
-      borderColor="magenta" 
       paddingX={1}
       marginBottom={1}
     >
@@ -115,7 +113,7 @@ export const EditApproval: React.FC<EditApprovalProps> = ({
 
       {/* Help Text */}
       {pendingEdits.length > 0 && (
-        <Box marginTop={1} borderStyle="single" borderColor="gray" paddingX={1}>
+        <Box marginTop={1} paddingX={1}>
           <Text color="gray">
             Keyboard: <Text color="white">Shift+Tab</Text> = Accept | 
             <Text color="white"> Shift+Esc</Text> = Reject | 

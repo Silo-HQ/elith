@@ -327,6 +327,36 @@ def run_oneshot(args, repo_path: str, config: Dict):
         sys.exit(1)
 
 
+def resolve_tui_entry() -> tuple[Path, list[str]]:
+    """Resolve the installed or development TUI entrypoint."""
+    env_tui_path = os.getenv("ELITH_TUI_PATH")
+    possible_tui_paths = [
+        Path(env_tui_path).expanduser() if env_tui_path else None,
+        Path(__file__).parent / "tui",
+        Path.home() / ".elith" / "repo" / "tui",
+    ]
+
+    searched = []
+    for path in possible_tui_paths:
+        if not path:
+            continue
+        searched.append(path)
+
+        dist_entry = path / "dist" / "index.js"
+        if dist_entry.exists():
+            return path, ["node", str(dist_entry)]
+
+        source_entry = path / "src" / "index.tsx"
+        if source_entry.exists():
+            return path, ["npx", "tsx", str(source_entry)]
+
+    console.print("[red]TUI not found in any expected location[/red]")
+    console.print("[yellow]Searched:[/yellow]")
+    for path in searched:
+        console.print(f"  - {path}")
+    sys.exit(1)
+
+
 def main():
     """Main CLI entrypoint with auto-service management"""
     parser = argparse.ArgumentParser(
@@ -462,15 +492,15 @@ def main():
     
     # Run appropriate mode
     if args.command in [None, "chat"]:
-        # Launch TUI - no fallback
+        import subprocess
+
+        tui_path, tui_command = resolve_tui_entry()
+
+        # Launch TUI
         try:
-            from tui.app import ElithApp
-            app = ElithApp()
-            app.run()
-        except ImportError:
-            console.print("[red]TUI not available. Install with: cd tui && npm install[/red]")
-            console.print("[yellow]Falling back to CLI mode...[/yellow]")
-            # Could add a simple CLI REPL here as fallback
+            subprocess.run(tui_command, cwd=str(tui_path))
+        except KeyboardInterrupt:
+            console.print("\n[yellow]TUI closed[/yellow]")
     else:
         # One-shot command
         run_oneshot(args, repo_path, config)

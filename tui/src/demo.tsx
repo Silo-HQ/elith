@@ -40,7 +40,7 @@ const DemoApp: React.FC = () => {
       <EnhancedBanner showAnimation={true} compact={false} />
 
       {/* Theme Info */}
-      <Box marginY={1} borderStyle="round" borderColor={theme.colors.border} paddingX={2}>
+      <Box marginY={1} paddingX={2}>
         <Text color={theme.colors.brand} bold>Current Theme: </Text>
         <Text color={theme.colors.accent}>{currentThemeName}</Text>
         <Text color={theme.colors.textDim}> (Press Ctrl+Shift+T to cycle)</Text>
@@ -62,7 +62,7 @@ const DemoApp: React.FC = () => {
 
       {/* Demo Content */}
       {demoStep === 0 && (
-        <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
+        <Box flexDirection="column" padding={1}>
           <Text color={theme.colors.brand} bold>✨ Spinners & Animations</Text>
           <Box marginTop={1}>
             <ThinkingSpinner />
@@ -77,7 +77,7 @@ const DemoApp: React.FC = () => {
       )}
 
       {demoStep === 1 && (
-        <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
+        <Box flexDirection="column" padding={1}>
           <Text color={theme.colors.brand} bold>📊 Progress Bars</Text>
           <Box marginTop={1}>
             <ProgressBar progress={progress} label="Analyzing code..." animated />
@@ -89,7 +89,7 @@ const DemoApp: React.FC = () => {
       )}
 
       {demoStep === 2 && (
-        <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
+        <Box flexDirection="column" padding={1}>
           <Text color={theme.colors.brand} bold>📱 Split Panes</Text>
           <Box marginTop={1} height={10}>
             <SplitPane orientation="vertical" sizes={[60, 40]}>
@@ -107,7 +107,7 @@ const DemoApp: React.FC = () => {
       )}
 
       {demoStep === 3 && (
-        <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
+        <Box flexDirection="column" padding={1}>
           <Text color={theme.colors.brand} bold>📑 Tabs System</Text>
           <Box marginTop={1}>
             <TabBar
@@ -128,7 +128,7 @@ const DemoApp: React.FC = () => {
       )}
 
       {demoStep === 4 && (
-        <Box flexDirection="column" borderStyle="single" borderColor={theme.colors.border} padding={1}>
+        <Box flexDirection="column" padding={1}>
           <Text color={theme.colors.brand} bold>🗂️ File Tree</Text>
           <Box marginTop={1} height={15}>
             <FileTree
@@ -141,7 +141,7 @@ const DemoApp: React.FC = () => {
       )}
 
       {/* Available Themes */}
-      <Box marginTop={1} borderStyle="round" borderColor={theme.colors.border} paddingX={2}>
+      <Box marginTop={1} paddingX={2}>
         <Text color={theme.colors.textDim}>Available Themes: </Text>
         {availableThemes.map((name, i) => (
           <React.Fragment key={name}>
@@ -154,7 +154,7 @@ const DemoApp: React.FC = () => {
       </Box>
 
       {/* Footer */}
-      <Box marginTop={1} justifyContent="center">
+      <Box marginTop={1}>
         <Text color={theme.colors.textDim}>
           Press Ctrl+C to exit · Demo cycles every 5 seconds
         </Text>

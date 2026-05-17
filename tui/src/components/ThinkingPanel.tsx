@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Text } from 'ink';
-import Spinner from 'ink-spinner';
 
 export interface ThinkingContent {
   id: string;
@@ -28,8 +27,6 @@ export const ThinkingPanel: React.FC<ThinkingPanelProps> = ({
   return (
     <Box 
       flexDirection="column" 
-      borderStyle="single" 
-      borderColor="yellow" 
       paddingX={1}
       marginBottom={1}
     >
@@ -40,8 +37,7 @@ export const ThinkingPanel: React.FC<ThinkingPanelProps> = ({
         </Text>
         {thinking.some(t => t.isStreaming) && (
           <Text color="yellow">
-            {' '}
-            <Spinner type="dots" />
+            {' '}…
           </Text>
         )}
       </Box>

@@ -13,3 +13,18 @@ dist/
 build/
 .next/
 .vite/
+
+# Internal documentation (keep in docs branch only)
+*_COMPLETE.md
+*_IMPLEMENTATION.md
+*_SUMMARY.md
+*_MIGRATION.md
+*_CLEANUP.md
+*_GUIDE.md
+*_FIX.md
+*_STATUS.md
+WIZARD_*.md
+!README.md
+!INSTALL.md
+!CHANGELOG.md
+!docs/**/*.md

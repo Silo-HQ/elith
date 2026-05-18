@@ -13,7 +13,7 @@ Elith reads your prompt, understands intent, spins up the right swarm of special
 The fastest path — curl installer handles everything:
 
 ```bash
-curl -fsSL https://elith.silohq.tech/install.sh | sh
+curl -fsSL https://elith.lovable.app/install.sh | sh
 ```
 
 Or install via your package manager of choice:
@@ -123,20 +123,20 @@ Switch with /model — no code changes, no lock-in.
 
 | Section | What's Covered |
 |---------|----------------|
-| [Quickstart](https://elith.silohq.tech/docs/quickstart) | Install → configure → first task in 5 min |
-| [TUI Usage](https://elith.silohq.tech/docs/tui) | Commands, keybindings, / @ ! # triggers |
-| [Web Dashboard](https://elith.silohq.tech/docs/dashboard) | Pages, components, real-time streaming |
-| [Configuration](https://elith.silohq.tech/docs/config) | .env vars, providers, model switching |
-| [Skills System](https://elith.silohq.tech/docs/skills) | 12 built-in skills, adding custom skills |
-| [Context Engine](https://elith.silohq.tech/docs/context) | repo_scanner, packet_builder, compression |
-| [Operations](https://elith.silohq.tech/docs/operations) | explain, architect, test-gen, refactor |
-| [API Reference](https://elith.silohq.tech/docs/api) | All endpoints, SSE stream format |
-| [Service Management](https://elith.silohq.tech/docs/service) | Auto-start, daemon control, cross-platform |
-| [Adding a Provider](https://elith.silohq.tech/docs/providers) | Extend BaseProvider, register in router |
-| [Session Reports](https://elith.silohq.tech/docs/reports) | Auto-export format, bob-reports/ structure |
-| [Architecture](https://elith.silohq.tech/docs/architecture) | Project structure, data flow, key modules |
+| [Quickstart](https://elith.lovable.app/docs/quickstart) | Install → configure → first task in 5 min |
+| [TUI Usage](https://elith.lovable.app/docs/tui) | Commands, keybindings, / @ ! # triggers |
+| [Web Dashboard](https://elith.lovable.app/docs/dashboard) | Pages, components, real-time streaming |
+| [Configuration](https://elith.lovable.app/docs/config) | .env vars, providers, model switching |
+| [Skills System](https://elith.lovable.app/docs/skills) | 12 built-in skills, adding custom skills |
+| [Context Engine](https://elith.lovable.app/docs/context) | repo_scanner, packet_builder, compression |
+| [Operations](https://elith.lovable.app/docs/operations) | explain, architect, test-gen, refactor |
+| [API Reference](https://elith.lovable.app/docs/api) | All endpoints, SSE stream format |
+| [Service Management](https://elith.lovable.app/docs/service) | Auto-start, daemon control, cross-platform |
+| [Adding a Provider](https://elith.lovable.app/docs/providers) | Extend BaseProvider, register in router |
+| [Session Reports](https://elith.lovable.app/docs/reports) | Auto-export format, bob-reports/ structure |
+| [Architecture](https://elith.lovable.app/docs/architecture) | Project structure, data flow, key modules |
 
-All documentation lives in docs/ or at https://elith.silohq.tech
+All documentation lives in docs/ or at https://elith.lovable.app
 
 ## Contributing
 
@@ -152,7 +152,7 @@ cd elith && ./install.sh
 ## Community
 
 - [GitHub](https://github.com/Silo-HQ/elith)
-- [Website](https://elith.silohq.tech)
+- [Website](https://elith.lovable.app)
 - [Issues](https://github.com/Silo-HQ/elith/issues)
 - [Discussions](https://github.com/Silo-HQ/elith/discussions)
 - [IBM Bob Hackathon 2026](https://lablab.ai)
